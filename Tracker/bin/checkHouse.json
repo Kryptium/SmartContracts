@@ -1,0 +1,13 @@
+{
+    "abi": "[{\"constant\":false,\"inputs\":[],\"name\":\"isHouse\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+    "bytecode": "",
+    "functionHashes": {
+        "isHouse()": "6369313d"
+    },
+    "gasEstimates": {
+        "creation": {},
+        "external": {},
+        "internal": {}
+    },
+    "runtimeBytecode": ""
+}
