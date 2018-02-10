@@ -77,14 +77,12 @@ contract Tracker is SafeMath, Owned {
         string  name;
         string  creatorName;
         uint  createdTimestamp;   
-        uint  lastUpdateTimestamp;
+        uint  lastUpdatedTimestamp;
         bool  managed;
-        uint tIP;
     }    
 
     // This creates an array with all balances
     mapping (address => House) public house;
-    mapping (address => mapping (address => uint256)) public allowance;
 
     // Notifies clients that a house has insterted/altered
     event TrackerChanged(address indexed  houseAddress, Action action);
@@ -92,22 +90,22 @@ contract Tracker is SafeMath, Owned {
     // Nnotifies clients that a house has voted
     event HouseVoted(address indexed houseAddress, bool isUpVote);
 
-    // Nnotifies clients that a tracker function invoked
-    event TrackerInvoked(uint timeStamp, address invoker);
+    // Notifies clients that a new tracker is launched
+    event TrackerCreated();
+
 
     /**
      * Constructor function
      *
      * Initializes Tracker contract
      */
-    function Tracker(string trackerName, string trackerCreatorName, bool trackerIsManaged, uint tIP) public {
+    function Tracker(string trackerName, string trackerCreatorName, bool trackerIsManaged) public {
         trackerData.name = trackerName;
         trackerData.creatorName = trackerCreatorName;
         trackerData.createdTimestamp = block.timestamp;
-        trackerData.lastUpdateTimestamp = block.timestamp;
+        trackerData.lastUpdatedTimestamp = block.timestamp;
         trackerData.managed = trackerIsManaged;
-        trackerData.tIP = tIP;
-        TrackerInvoked(block.timestamp, msg.sender);
+        TrackerCreated();
     }
 
 
