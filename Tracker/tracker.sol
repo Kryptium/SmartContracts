@@ -54,7 +54,10 @@ contract Owned {
 }
 
 
-interface checkHouse { function isHouse() public; }
+interface houseContract {
+     function owner() public constant returns (address); 
+     function isHouse() public constant returns (bool); 
+     }
 
 /*
  * ZKBet Tracker Contract.  Copyright © 2018 by ZKBet.
@@ -67,10 +70,12 @@ contract Tracker is SafeMath, Owned {
 
     enum Action { added, updated, removed }
 
-    struct House { 
-        address houseAddress;                 
-        uint  upVotes;             
-        uint  downVotes;
+    struct House {            
+        uint upVotes;             
+        uint downVotes;
+        bool isActive;
+        address oldAddress;
+        address owner;
     }
 
     struct TrackerData { 
@@ -82,10 +87,10 @@ contract Tracker is SafeMath, Owned {
     }    
 
     // This creates an array with all balances
-    mapping (address => House) public house;
+    mapping (address => House) public houses;
 
     // Notifies clients that a house has insterted/altered
-    event TrackerChanged(address indexed  houseAddress, Action action);
+    event TrackerChanged(address indexed  newHouseAddress, address indexed oldHouseAddress, Action action);
 
     // Nnotifies clients that a house has voted
     event HouseVoted(address indexed houseAddress, bool isUpVote);
@@ -108,7 +113,79 @@ contract Tracker is SafeMath, Owned {
         TrackerCreated();
     }
 
+     /**
+     * Add House function
+     *
+     * Add a new house
+     */
+    function addHouse(address houseAddress) public {
+        require(!trackerData.managed || msg.sender==owner);
+        require(!houses[houseAddress].isActive);    
+        // TODO check if ZKBet House smart contract
+        houses[houseAddress] = House(0,0,true,0x0,msg.sender);
+        trackerData.lastUpdatedTimestamp = block.timestamp;
+        TrackerChanged(houseAddress,0x0,Action.added);
+    }
 
+    /**
+     * Update House function
+     *
+     * Updates a house 
+     */
+    function updateHouse(address newHouseAddress,address oldHouseAddress) public {
+        require(!trackerData.managed || msg.sender==owner);
+        require(houses[oldHouseAddress].owner==msg.sender || houses[oldHouseAddress].owner==oldHouseAddress);  
+        // TODO check if ZKBet House smart contract
+        houses[oldHouseAddress].isActive = false;
+        houses[newHouseAddress].isActive = true;
+        houses[newHouseAddress].upVotes = houses[oldHouseAddress].upVotes;
+        houses[newHouseAddress].downVotes = houses[oldHouseAddress].downVotes;
+        houses[newHouseAddress].oldAddress = oldHouseAddress;
+        trackerData.lastUpdatedTimestamp = block.timestamp;
+        TrackerChanged(newHouseAddress,oldHouseAddress,Action.updated);
+    }
+
+     /**
+     * Remove House function
+     *
+     * Removes a house
+     */
+    function removeHouse(address houseAddress) public {
+        require(!trackerData.managed || msg.sender==owner);
+        require(houses[houseAddress].owner==msg.sender || houses[houseAddress].owner==houseAddress);  
+        // TODO check if ZKBet House smart contract
+        houses[houseAddress].isActive = false;
+        trackerData.lastUpdatedTimestamp = block.timestamp;
+        TrackerChanged(houseAddress,houseAddress,Action.removed);
+    }
+
+     /**
+     * UpVote House function
+     *
+     * UpVotes a house
+     */
+    function upVoteHouse(address houseAddress) public {
+        houses[houseAddress].upVotes += 1;
+        trackerData.lastUpdatedTimestamp = block.timestamp;
+        HouseVoted(houseAddress,true);
+    }
+
+     /**
+     * DownVote House function
+     *
+     * DownVotes a house
+     */
+    function downVoteHouse(address houseAddress) public {
+        houses[houseAddress].upVotes -= 1;
+        trackerData.lastUpdatedTimestamp = block.timestamp;
+        HouseVoted(houseAddress,false);
+    }    
+
+    /**
+     * Kill function
+     *
+     * Contract Suicide
+     */
     function kill() onlyOwner public {
         selfdestruct(owner); 
     }
