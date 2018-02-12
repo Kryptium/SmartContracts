@@ -114,9 +114,20 @@ contract Tracker is SafeMath, Owned {
     }
 
      /**
+     * Update Trackers Data function
+     *
+     * Updates trackers stats
+     */
+    function updateTrackerNames(string newName, string newCreatorName) onlyOwner public {
+            trackerData.name = newName;
+            trackerData.creatorName = newCreatorName;
+            trackerData.lastUpdatedTimestamp = block.timestamp;
+    }    
+
+     /**
      * Add House function
      *
-     * Add a new house
+     * Adds a new house
      */
     function addHouse(address houseAddress) public {
         require(!trackerData.managed || msg.sender==owner);
