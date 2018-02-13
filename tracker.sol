@@ -5,31 +5,31 @@ pragma solidity ^0.4.16;
  * @dev Math operations with safety checks that throw on error
  */
 contract SafeMath {
-    function mul(uint256 a, uint256 b) internal constant returns (uint256) {
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
         uint256 c = a * b;
         assert(a == 0 || c / a == b);
         return c;
     }
 
-    function div(uint256 a, uint256 b) internal constant returns (uint256) {
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
         assert(b != 0); // Solidity automatically throws when dividing by 0
         uint256 c = a / b;
         assert(a == b * c + a % b); // There is no case in which this doesn't hold
         return c;
     }
 
-    function sub(uint256 a, uint256 b) internal constant returns (uint256) {
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
         assert(b <= a);
         return a - b;
     }
 
-    function add(uint256 a, uint256 b) internal constant returns (uint256) {
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
         uint256 c = a + b;
         assert(c >= a);
         return c;
     }
 
-    function mulByFraction(uint256 number, uint256 numerator, uint256 denominator) internal returns (uint256) {
+    function mulByFraction(uint256 number, uint256 numerator, uint256 denominator) internal pure returns (uint256) {
         return div(mul(number, numerator), denominator);
     }
 }
@@ -65,7 +65,7 @@ interface houseContract {
  */
 contract Tracker is SafeMath, Owned {
 
-    TrackerData public trackerData;
+
 
 
     enum Action { added, updated, removed }
@@ -86,23 +86,29 @@ contract Tracker is SafeMath, Owned {
         bool  managed;
     }    
 
+
+    TrackerData public trackerData;
+
     // This creates an array with all balances
     mapping (address => House) public houses;
 
     // Notifies clients that a house has insterted/altered
     event TrackerChanged(address indexed  newHouseAddress, address indexed oldHouseAddress, Action action);
 
-    // Nnotifies clients that a house has voted
+    // Notifies clients that a house has voted
     event HouseVoted(address indexed houseAddress, bool isUpVote);
 
     // Notifies clients that a new tracker is launched
     event TrackerCreated();
 
+    // Notifies clients that a Tracker names has has changed
+    event TrackerNamesUpdated(string newName, string newCreatorName);    
+
 
     /**
      * Constructor function
      *
-     * Initializes Tracker contract
+     * Initializes Tracker data
      */
     function Tracker(string trackerName, string trackerCreatorName, bool trackerIsManaged) public {
         trackerData.name = trackerName;
@@ -114,14 +120,15 @@ contract Tracker is SafeMath, Owned {
     }
 
      /**
-     * Update Trackers Data function
+     * Update Tracker Data function
      *
-     * Updates trackers stats
+     * Updates trackersstats
      */
     function updateTrackerNames(string newName, string newCreatorName) onlyOwner public {
             trackerData.name = newName;
             trackerData.creatorName = newCreatorName;
             trackerData.lastUpdatedTimestamp = block.timestamp;
+            TrackerNamesUpdated(newName,newCreatorName);
     }    
 
      /**
