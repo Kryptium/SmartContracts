@@ -118,10 +118,10 @@ contract Oracle is SafeMath, Owned {
 
 
     // Notifies clients that a new oracle is launched
-    event OracleCreated();
+    event OracleCreated(string newName, string newCreatorName, uint closeBeforeStartTime, uint closeEventOutcomeTime, uint timestamp);
 
     // Notifies clients that an Oracle data has changed
-    event OraclePropertiesUpdated(string newName, string newCreatorName, uint closeBeforeStartTime, uint closeEventOutcomeTime);    
+    event OraclePropertiesUpdated(string newName, string newCreatorName, uint closeBeforeStartTime, uint closeEventOutcomeTime, uint timestamp);    
 
     // Notifies clients that an Oracle subcategory has changed
     event OracleSubcategoriesUpdated(uint id, Category category, string name, bool hidden);    
@@ -136,6 +136,7 @@ contract Oracle is SafeMath, Owned {
      * Constructor function
      *
      * Initializes Oracle contract
+     * Remix sample constructor call "oracleName","oracleCreatorName",1,10
      */
     function Oracle(string oracleName, string oracleCreatorName, uint closeBeforeStartTime, uint closeEventOutcomeTime) public {
         oracleData.name = oracleName;
@@ -144,7 +145,7 @@ contract Oracle is SafeMath, Owned {
         oracleData.closeEventOutcomeTime = closeEventOutcomeTime;
         oracleData.createdTimestamp = block.timestamp;
         oracleData.lastUpdatedTimestamp = block.timestamp;
-        OracleCreated();
+        OracleCreated(oracleName, oracleCreatorName, closeBeforeStartTime, closeEventOutcomeTime, oracleData.createdTimestamp);
     }
 
      /**
@@ -156,7 +157,7 @@ contract Oracle is SafeMath, Owned {
             oracleData.name = newName;
             oracleData.creatorName = newCreatorName;
             oracleData.lastUpdatedTimestamp = block.timestamp;
-            OraclePropertiesUpdated(oracleData.name, oracleData.creatorName, oracleData.closeBeforeStartTime, oracleData.closeEventOutcomeTime);
+            OraclePropertiesUpdated(oracleData.name, oracleData.creatorName, oracleData.closeBeforeStartTime, oracleData.closeEventOutcomeTime, oracleData.lastUpdatedTimestamp);
     }    
 
      /**
@@ -168,7 +169,7 @@ contract Oracle is SafeMath, Owned {
             oracleData.closeBeforeStartTime = closeBeforeStartTime;
             oracleData.closeEventOutcomeTime = closeEventOutcomeTime;
             oracleData.lastUpdatedTimestamp = block.timestamp;
-            OraclePropertiesUpdated(oracleData.name, oracleData.creatorName, oracleData.closeBeforeStartTime, oracleData.closeEventOutcomeTime);
+            OraclePropertiesUpdated(oracleData.name, oracleData.creatorName, oracleData.closeBeforeStartTime, oracleData.closeEventOutcomeTime, oracleData.lastUpdatedTimestamp);
     }      
 
     /**
