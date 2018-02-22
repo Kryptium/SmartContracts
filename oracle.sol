@@ -136,7 +136,7 @@ contract Oracle is SafeMath, Owned {
      * Constructor function
      *
      * Initializes Oracle contract
-     * Remix sample constructor call "oracleName","oracleCreatorName",1,10
+     * Remix sample constructor call "oracleName","oracleCreatorName",15,20
      */
     function Oracle(string oracleName, string oracleCreatorName, uint closeBeforeStartTime, uint closeEventOutcomeTime) public {
         oracleData.name = oracleName;
@@ -196,11 +196,12 @@ contract Oracle is SafeMath, Owned {
 
     /**
      * Adds an Upcoming Event
+     * Remix sample call "OSFP-PAO", 1521745089, 1521752289, 0, 0
      */
     function addUpcomingEvent(string title, uint startDateTime, uint endDateTime, uint subcategoryId, Category category) onlyOwner public {
-        require(startDateTime - oracleData.closeEventOutcomeTime<=block.timestamp);
-        uint closeDateTime = startDateTime - oracleData.closeEventOutcomeTime;
-        uint freezeDateTime = endDateTime + oracleData.closeEventOutcomeTime;
+        uint closeDateTime = startDateTime - oracleData.closeEventOutcomeTime * 1 minutes;
+        uint freezeDateTime = endDateTime + oracleData.closeEventOutcomeTime * 1 minutes;
+        require(closeDateTime >= block.timestamp);
         eventNextId += 1;
         uint id = eventNextId;
         events[id].id = id;
@@ -218,8 +219,8 @@ contract Oracle is SafeMath, Owned {
      * Updates an Upcoming Event
      */
     function updateUpcomingEvent(uint id, string title, uint startDateTime, uint endDateTime, uint subcategoryId, Category category) onlyOwner public {
-        uint closeDateTime = startDateTime - oracleData.closeEventOutcomeTime;
-        uint freezeDateTime = block.timestamp + oracleData.closeEventOutcomeTime;
+        uint closeDateTime = startDateTime - oracleData.closeEventOutcomeTime * 1 minutes;
+        uint freezeDateTime = endDateTime + oracleData.closeEventOutcomeTime * 1 minutes;
         events[id].title = title;
         events[id].startDateTime = startDateTime;
         events[id].endDateTime = endDateTime;
@@ -227,11 +228,11 @@ contract Oracle is SafeMath, Owned {
         events[id].category = category;
         events[id].closeDateTime = closeDateTime;
         events[id].freezeDateTime = freezeDateTime;
-        if (closeDateTime>block.timestamp) {
+        if (closeDateTime < block.timestamp) {
             events[id].isCancelled = true;
             UpcomingEventChanged(id, title, startDateTime, endDateTime, subcategoryId, category, closeDateTime, freezeDateTime, EventChange.cancelledEvent); 
         } else {
-            UpcomingEventChanged(id, title, startDateTime, endDateTime, subcategoryId, category, closeDateTime, freezeDateTime, EventChange.newEvent); 
+            UpcomingEventChanged(id, title, startDateTime, endDateTime, subcategoryId, category, closeDateTime, freezeDateTime, EventChange.updatedEvent); 
         }  
     }     
 
