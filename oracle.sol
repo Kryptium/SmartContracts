@@ -54,7 +54,7 @@ contract Owned {
 }
 
 /*
- * ZKBet Tracker Contract.  Copyright © 2018 by ZKBet.
+ * ZKBet Oracle Contract.  Copyright © 2018 by ZKBet.
  * Author: Giannis Zarifis <jzarifis@gmail.com>
  */
 contract Oracle is SafeMath, Owned {
@@ -296,8 +296,8 @@ contract Oracle is SafeMath, Owned {
     /**
      * Get event Info for Houses
      */
-    function getEventInfoForHouses(uint id) public view returns(uint  startDateTime, uint  endDateTime, uint closeDateTime, uint freezeDateTime, bool isCancelled, bool eventOutcomeIsSet) {
-        return (events[id].startDateTime, events[id].endDateTime, events[id].closeDateTime, events[id].freezeDateTime, events[id].isCancelled, eventsOutcome[id].isEventOutcomeSet);
+    function getEventForHousePlaceBet(uint id) public view returns(uint closeDateTime, bool isCancelled) {
+        return (events[id].closeDateTime, events[id].isCancelled);
     }
 
 

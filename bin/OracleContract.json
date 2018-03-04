@@ -1,0 +1,13 @@
+{
+    "abi": "[{\"constant\":true,\"inputs\":[{\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"getEventForHousePlaceBet\",\"outputs\":[{\"name\":\"closeDateTime\",\"type\":\"uint256\"},{\"name\":\"isCancelled\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]",
+    "bytecode": "",
+    "functionHashes": {
+        "getEventForHousePlaceBet(uint256)": "7599609d"
+    },
+    "gasEstimates": {
+        "creation": {},
+        "external": {},
+        "internal": {}
+    },
+    "runtimeBytecode": ""
+}
