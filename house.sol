@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
 /**
  * @title SafeMath
@@ -38,7 +38,7 @@ contract Owned {
 
     address public owner;
 
-    function Owned() public {
+    constructor() public {
         owner = msg.sender;
     }
 
@@ -134,7 +134,7 @@ contract House is SafeMath, Owned {
      * Initializes House contract
      * Remix sample constructor call 1,"houseName","houseCreatorName","GR","0x692a70d2e424a56d2c6c27aa97d1a86395877b3a",["0x692a70d2e424a56d2c6c27aa97d1a86395877b3a","0xca35b7d915458ef540ade6068dfe2f44e8fa733c"],[50,50],2
      */
-    function House(bool managed, string houseName, string houseCreatorName, string houseCountryISO, address oracleAddress, address[] ownerAddress, uint256[] ownerPercentage, uint housePercentage) public {
+    constructor(bool managed, string houseName, string houseCreatorName, string houseCountryISO, address oracleAddress, address[] ownerAddress, uint256[] ownerPercentage, uint housePercentage) public {
         houseData.managed = managed;
         houseData.name = houseName;
         houseData.creatorName = houseCreatorName;
@@ -145,10 +145,10 @@ contract House is SafeMath, Owned {
         // houseData.createdTimestamp = now;
         // houseData.lastUpdatedTimestamp = now;
         for (uint i = 0; i<ownerAddress.length; i++) {
-                houseData.ownerAddress.push(ownerAddress[i]);
-                houseData.ownerPercentage.push(ownerPercentage[i]);
+            houseData.ownerAddress.push(ownerAddress[i]);
+            houseData.ownerPercentage.push(ownerPercentage[i]);
             }
-        HouseCreated();
+        emit HouseCreated();
     }
 
      /**
@@ -160,7 +160,7 @@ contract House is SafeMath, Owned {
         houseData.creatorName = houseCreatorName;
         houseData.countryISO = houseCountryISO;     
         //houseData.lastUpdatedTimestamp = now;
-        HousePropertiesUpdated();
+        emit HousePropertiesUpdated();
     }    
 
     /**
@@ -172,7 +172,7 @@ contract House is SafeMath, Owned {
         houseData.oldOracleAddress = houseData.oracleAddress;
         houseData.oracleAddress = oracleAddress;
        // houseData.lastUpdatedTimestamp = now;
-        HousePropertiesUpdated();
+        emit HousePropertiesUpdated();
     } 
 
     /**
@@ -183,7 +183,7 @@ contract House is SafeMath, Owned {
         require(housePercentage != houseData.percentage);
         houseData.percentage = housePercentage;
         //houseData.lastUpdatedTimestamp = now;
-        HousePropertiesUpdated();
+        emit HousePropertiesUpdated();
     } 
 
     //  /**
@@ -233,7 +233,7 @@ contract House is SafeMath, Owned {
         }       
         bets[id].placedByNickName = placedBy;
         bets[id].placedBy = msg.sender;
-        BetPlaced(id);  
+        emit BetPlaced(id);  
     }  
 
     // function updateBetOptionalParameters(uint id, uint256 wager, uint closingDateTime, uint256 minimumWager, uint256 maximumWager, uint256 payoutRate, string placedBy) public {

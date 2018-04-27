@@ -1,4 +1,4 @@
-pragma solidity ^0.4.16;
+pragma solidity ^0.4.23;
 
 /**
  * @title SafeMath
@@ -38,7 +38,7 @@ contract Owned {
 
     address public owner;
 
-    function Owned() public {
+    constructor() public {
         owner = msg.sender;
     }
 
@@ -55,8 +55,8 @@ contract Owned {
 
 
 interface houseContract {
-     function owner() public constant returns (address); 
-     function isHouse() public constant returns (bool); 
+     function owner() external constant returns (address); 
+     function isHouse() external constant returns (bool); 
      }
 
 /*
@@ -84,6 +84,7 @@ contract Tracker is SafeMath, Owned {
         uint  createdTimestamp;   
         uint  lastUpdatedTimestamp;
         bool  managed;
+        uint trackerVersion;
     }    
 
 
@@ -102,7 +103,7 @@ contract Tracker is SafeMath, Owned {
     event TrackerCreated();
 
     // Notifies clients that a Tracker names has has changed
-    event TrackerNamesUpdated(string newName, string newCreatorName);    
+    event TrackerNamesUpdated();    
 
 
     /**
@@ -110,13 +111,14 @@ contract Tracker is SafeMath, Owned {
      *
      * Initializes Tracker data
      */
-    function Tracker(string trackerName, string trackerCreatorName, bool trackerIsManaged) public {
+    constructor(string trackerName, string trackerCreatorName, bool trackerIsManaged) public {
         trackerData.name = trackerName;
         trackerData.creatorName = trackerCreatorName;
         trackerData.createdTimestamp = now;
         trackerData.lastUpdatedTimestamp = now;
         trackerData.managed = trackerIsManaged;
-        TrackerCreated();
+        trackerData.trackerVersion = 1;
+        emit TrackerCreated();
     }
 
      /**
@@ -128,7 +130,7 @@ contract Tracker is SafeMath, Owned {
             trackerData.name = newName;
             trackerData.creatorName = newCreatorName;
             trackerData.lastUpdatedTimestamp = now;
-            TrackerNamesUpdated(newName,newCreatorName);
+            emit TrackerNamesUpdated();
     }    
 
      /**
@@ -142,7 +144,7 @@ contract Tracker is SafeMath, Owned {
         // TODO check if ZKBet House smart contract
         houses[houseAddress] = House(0,0,true,0x0,msg.sender);
         trackerData.lastUpdatedTimestamp = now;
-        TrackerChanged(houseAddress,0x0,Action.added);
+        emit TrackerChanged(houseAddress,0x0,Action.added);
     }
 
     /**
@@ -160,7 +162,7 @@ contract Tracker is SafeMath, Owned {
         houses[newHouseAddress].downVotes = houses[oldHouseAddress].downVotes;
         houses[newHouseAddress].oldAddress = oldHouseAddress;
         trackerData.lastUpdatedTimestamp = now;
-        TrackerChanged(newHouseAddress,oldHouseAddress,Action.updated);
+        emit TrackerChanged(newHouseAddress,oldHouseAddress,Action.updated);
     }
 
      /**
@@ -174,7 +176,7 @@ contract Tracker is SafeMath, Owned {
         // TODO check if ZKBet House smart contract
         houses[houseAddress].isActive = false;
         trackerData.lastUpdatedTimestamp = now;
-        TrackerChanged(houseAddress,houseAddress,Action.removed);
+        emit TrackerChanged(houseAddress,houseAddress,Action.removed);
     }
 
      /**
@@ -185,7 +187,7 @@ contract Tracker is SafeMath, Owned {
     function upVoteHouse(address houseAddress) public {
         houses[houseAddress].upVotes += 1;
         trackerData.lastUpdatedTimestamp = now;
-        HouseVoted(houseAddress,true);
+        emit HouseVoted(houseAddress,true);
     }
 
      /**
@@ -196,7 +198,7 @@ contract Tracker is SafeMath, Owned {
     function downVoteHouse(address houseAddress) public {
         houses[houseAddress].upVotes -= 1;
         trackerData.lastUpdatedTimestamp = now;
-        HouseVoted(houseAddress,false);
+        emit HouseVoted(houseAddress,false);
     }    
 
     /**

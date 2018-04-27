@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
 /**
  * @title SafeMath
@@ -38,7 +38,7 @@ contract Owned {
 
     address public owner;
 
-    function Owned() public {
+    constructor() public {
         owner = msg.sender;
     }
 
@@ -102,6 +102,7 @@ contract Oracle is SafeMath, Owned {
         uint id;
         Category category;
         string name;
+        string country;
         bool hidden;
     }
 
@@ -124,7 +125,7 @@ contract Oracle is SafeMath, Owned {
     event OraclePropertiesUpdated(string newName, string newCreatorName, uint closeBeforeStartTime, uint closeEventOutcomeTime, uint timestamp);    
 
     // Notifies clients that an Oracle subcategory has changed
-    event OracleSubcategoriesUpdated(uint id, Category category, string name, bool hidden);    
+    event OracleSubcategoriesUpdated(uint id, Category category, string name,string country, bool hidden);    
 
     // Notifies clients that an Oracle Event has changed
     event UpcomingEventChanged(uint id, string title, uint startDateTime, uint endDateTime, uint subcategory, Category category, uint closeDateTime, uint freezeDateTime, EventChange eventChange);   
@@ -138,14 +139,14 @@ contract Oracle is SafeMath, Owned {
      * Initializes Oracle contract
      * Remix sample constructor call "oracleName","oracleCreatorName",15,20
      */
-    function Oracle(string oracleName, string oracleCreatorName, uint closeBeforeStartTime, uint closeEventOutcomeTime) public {
+    constructor(string oracleName, string oracleCreatorName, uint closeBeforeStartTime, uint closeEventOutcomeTime) public {
         oracleData.name = oracleName;
         oracleData.creatorName = oracleCreatorName;
         oracleData.closeBeforeStartTime = closeBeforeStartTime;
         oracleData.closeEventOutcomeTime = closeEventOutcomeTime;
         oracleData.createdTimestamp = now;
         oracleData.lastUpdatedTimestamp = now;
-        OracleCreated(oracleName, oracleCreatorName, closeBeforeStartTime, closeEventOutcomeTime, oracleData.createdTimestamp);
+        emit OracleCreated(oracleName, oracleCreatorName, closeBeforeStartTime, closeEventOutcomeTime, oracleData.createdTimestamp);
     }
 
      /**
@@ -157,7 +158,7 @@ contract Oracle is SafeMath, Owned {
             oracleData.name = newName;
             oracleData.creatorName = newCreatorName;
             oracleData.lastUpdatedTimestamp = now;
-            OraclePropertiesUpdated(oracleData.name, oracleData.creatorName, oracleData.closeBeforeStartTime, oracleData.closeEventOutcomeTime, oracleData.lastUpdatedTimestamp);
+            emit OraclePropertiesUpdated(oracleData.name, oracleData.creatorName, oracleData.closeBeforeStartTime, oracleData.closeEventOutcomeTime, oracleData.lastUpdatedTimestamp);
     }    
 
      /**
@@ -169,21 +170,22 @@ contract Oracle is SafeMath, Owned {
             oracleData.closeBeforeStartTime = closeBeforeStartTime;
             oracleData.closeEventOutcomeTime = closeEventOutcomeTime;
             oracleData.lastUpdatedTimestamp = now;
-            OraclePropertiesUpdated(oracleData.name, oracleData.creatorName, oracleData.closeBeforeStartTime, oracleData.closeEventOutcomeTime, oracleData.lastUpdatedTimestamp);
+            emit OraclePropertiesUpdated(oracleData.name, oracleData.creatorName, oracleData.closeBeforeStartTime, oracleData.closeEventOutcomeTime, oracleData.lastUpdatedTimestamp);
     }      
 
     /**
      * Adds an Oracle Subcategories
      */
-    function setSubcategory(Category category, string name) onlyOwner public {
+    function setSubcategory(Category category, string name,string country) onlyOwner public {
             subcategoryNextId += 1;
             uint id = subcategoryNextId;
             subcategories[id].id = id;
             subcategories[id].category = category;
             subcategories[id].name = name;
+            subcategories[id].country = country;
             subcategories[id].hidden = false;
             oracleData.lastUpdatedTimestamp = now;
-            OracleSubcategoriesUpdated(id, category, name, false);
+            emit OracleSubcategoriesUpdated(id, category, name, country, false);
     }  
 
     /**
@@ -191,7 +193,7 @@ contract Oracle is SafeMath, Owned {
      */
     function hideSubcategory(uint id) onlyOwner public {
         subcategories[id].hidden = true;
-         OracleSubcategoriesUpdated(id, subcategories[id].category, subcategories[id].name, subcategories[id].hidden);  
+         emit OracleSubcategoriesUpdated(id, subcategories[id].category, subcategories[id].name,subcategories[id].country, subcategories[id].hidden);  
     }   
 
     /**
@@ -213,7 +215,7 @@ contract Oracle is SafeMath, Owned {
         events[id].category = category;
         events[id].closeDateTime = closeDateTime;
         events[id].freezeDateTime = freezeDateTime;
-        UpcomingEventChanged(id, title, startDateTime,endDateTime,subcategoryId,category, closeDateTime, freezeDateTime, EventChange.newEvent);  
+        emit UpcomingEventChanged(id, title, startDateTime,endDateTime,subcategoryId,category, closeDateTime, freezeDateTime, EventChange.newEvent);  
     }  
 
     /**
@@ -232,9 +234,9 @@ contract Oracle is SafeMath, Owned {
         events[id].freezeDateTime = freezeDateTime;
         if (closeDateTime < now) {
             events[id].isCancelled = true;
-            UpcomingEventChanged(id, title, startDateTime, endDateTime, subcategoryId, category, closeDateTime, freezeDateTime, EventChange.cancelledEvent); 
+            emit UpcomingEventChanged(id, title, startDateTime, endDateTime, subcategoryId, category, closeDateTime, freezeDateTime, EventChange.cancelledEvent); 
         } else {
-            UpcomingEventChanged(id, title, startDateTime, endDateTime, subcategoryId, category, closeDateTime, freezeDateTime, EventChange.updatedEvent); 
+            emit UpcomingEventChanged(id, title, startDateTime, endDateTime, subcategoryId, category, closeDateTime, freezeDateTime, EventChange.updatedEvent); 
         }  
     }     
 
@@ -244,7 +246,7 @@ contract Oracle is SafeMath, Owned {
     function cancelUpcomingEvent(uint id) onlyOwner public {
         require(events[id].freezeDateTime >= now);
         events[id].isCancelled = true;
-        UpcomingEventChanged(id, events[id].title, events[id].startDateTime, events[id].endDateTime, events[id].subcategoryId, events[id].category, events[id].closeDateTime, events[id].freezeDateTime, EventChange.cancelledEvent); 
+        emit UpcomingEventChanged(id, events[id].title, events[id].startDateTime, events[id].endDateTime, events[id].subcategoryId, events[id].category, events[id].closeDateTime, events[id].freezeDateTime, EventChange.cancelledEvent); 
     }  
 
 
@@ -261,7 +263,7 @@ contract Oracle is SafeMath, Owned {
         eventsOutcome[id].outcome5 = outcome5;
         eventsOutcome[id].outcome6 = outcome6;
         eventsOutcome[id].isEventOutcomeSet = true;
-        EventOutcomeChanged(id, outcome1,  outcome2, outcome3, outcome4, outcome5, outcome6); 
+        emit EventOutcomeChanged(id, outcome1,  outcome2, outcome3, outcome4, outcome5, outcome6); 
     }  
 
 
@@ -275,7 +277,7 @@ contract Oracle is SafeMath, Owned {
         } else {
             events[id].freezeDateTime = now;
         }
-        UpcomingEventChanged(id, events[id].title, events[id].startDateTime, events[id].endDateTime, events[id].subcategoryId, events[id].category, events[id].closeDateTime, events[id].freezeDateTime, EventChange.eventOutcomeManuallyFrozen);
+        emit UpcomingEventChanged(id, events[id].title, events[id].startDateTime, events[id].endDateTime, events[id].subcategoryId, events[id].category, events[id].closeDateTime, events[id].freezeDateTime, EventChange.eventOutcomeManuallyFrozen);
     } 
 
     /**
