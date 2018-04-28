@@ -94,8 +94,7 @@ contract Oracle is SafeMath, Owned {
         string  creatorName;
         uint  closeBeforeStartTime;   
         uint  closeEventOutcomeTime;
-        uint  createdTimestamp;   
-        uint  lastUpdatedTimestamp;        
+        uint version;      
     } 
 
     struct Subcategory {
@@ -119,10 +118,10 @@ contract Oracle is SafeMath, Owned {
 
 
     // Notifies clients that a new oracle is launched
-    event OracleCreated(string newName, string newCreatorName, uint closeBeforeStartTime, uint closeEventOutcomeTime, uint timestamp);
+    event OracleCreated();
 
     // Notifies clients that an Oracle data has changed
-    event OraclePropertiesUpdated(string newName, string newCreatorName, uint closeBeforeStartTime, uint closeEventOutcomeTime, uint timestamp);    
+    event OraclePropertiesUpdated();    
 
     // Notifies clients that an Oracle subcategory has changed
     event OracleSubcategoriesUpdated(uint id, Category category, string name,string country, bool hidden);    
@@ -144,9 +143,8 @@ contract Oracle is SafeMath, Owned {
         oracleData.creatorName = oracleCreatorName;
         oracleData.closeBeforeStartTime = closeBeforeStartTime;
         oracleData.closeEventOutcomeTime = closeEventOutcomeTime;
-        oracleData.createdTimestamp = now;
-        oracleData.lastUpdatedTimestamp = now;
-        emit OracleCreated(oracleName, oracleCreatorName, closeBeforeStartTime, closeEventOutcomeTime, oracleData.createdTimestamp);
+        oracleData.version = 100;
+        emit OracleCreated();
     }
 
      /**
@@ -157,8 +155,7 @@ contract Oracle is SafeMath, Owned {
     function updateOracleNames(string newName, string newCreatorName) onlyOwner public {
             oracleData.name = newName;
             oracleData.creatorName = newCreatorName;
-            oracleData.lastUpdatedTimestamp = now;
-            emit OraclePropertiesUpdated(oracleData.name, oracleData.creatorName, oracleData.closeBeforeStartTime, oracleData.closeEventOutcomeTime, oracleData.lastUpdatedTimestamp);
+            emit OraclePropertiesUpdated();
     }    
 
      /**
@@ -169,8 +166,7 @@ contract Oracle is SafeMath, Owned {
     function setTimeConstants(uint closeBeforeStartTime, uint closeEventOutcomeTime) onlyOwner public {
             oracleData.closeBeforeStartTime = closeBeforeStartTime;
             oracleData.closeEventOutcomeTime = closeEventOutcomeTime;
-            oracleData.lastUpdatedTimestamp = now;
-            emit OraclePropertiesUpdated(oracleData.name, oracleData.creatorName, oracleData.closeBeforeStartTime, oracleData.closeEventOutcomeTime, oracleData.lastUpdatedTimestamp);
+            emit OraclePropertiesUpdated();
     }      
 
     /**
@@ -184,7 +180,6 @@ contract Oracle is SafeMath, Owned {
             subcategories[id].name = name;
             subcategories[id].country = country;
             subcategories[id].hidden = false;
-            oracleData.lastUpdatedTimestamp = now;
             emit OracleSubcategoriesUpdated(id, category, name, country, false);
     }  
 

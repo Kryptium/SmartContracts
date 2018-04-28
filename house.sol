@@ -101,8 +101,7 @@ contract House is SafeMath, Owned {
         uint  percentage;    
         address[] ownerAddress;
         uint256[] ownerPercentage;   
-        // uint  createdTimestamp;   
-        // uint  lastUpdatedTimestamp;        
+        uint version;      
     } 
 
 
@@ -113,6 +112,8 @@ contract House is SafeMath, Owned {
     mapping (uint => Bet) public bets;
 
     mapping (address => uint256) public balance;
+
+    uint256 public houseCoins;
 
 
     
@@ -142,6 +143,7 @@ contract House is SafeMath, Owned {
         houseData.percentage = housePercentage;
         houseData.oracleAddress = oracleAddress;
         houseData.newBetsPaused = true;
+        houseData.version = 100;
         // houseData.createdTimestamp = now;
         // houseData.lastUpdatedTimestamp = now;
         for (uint i = 0; i<ownerAddress.length; i++) {
@@ -149,6 +151,13 @@ contract House is SafeMath, Owned {
             houseData.ownerPercentage.push(ownerPercentage[i]);
             }
         emit HouseCreated();
+    }
+
+    /**
+     * Check if valid house contract
+     */
+    function isHouse() public pure returns(bool response) {
+        return true;    
     }
 
      /**
@@ -235,6 +244,19 @@ contract House is SafeMath, Owned {
         bets[id].placedBy = msg.sender;
         emit BetPlaced(id);  
     }  
+
+
+    function() public payable {
+        houseCoins = add(houseCoins,msg.value);
+        balance[msg.sender] = add(balance[msg.sender],msg.value);
+    }
+
+    function withdraw(uint256 amount) public {
+        require(houseCoins>=amount);
+        balance[msg.sender] = sub(balance[msg.sender],amount);
+        houseCoins = sub(houseCoins,amount);
+        msg.sender.transfer(amount);
+    }
 
     // function updateBetOptionalParameters(uint id, uint256 wager, uint closingDateTime, uint256 minimumWager, uint256 maximumWager, uint256 payoutRate, string placedBy) public {
     //     require(msg.sender==bets[id].placedBy);
