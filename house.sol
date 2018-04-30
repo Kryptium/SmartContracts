@@ -83,9 +83,6 @@ contract House is SafeMath, Owned {
         uint256 payoutRate;
         address placedBy;
         BetType betType;
-        string placedByNickName;
-        // uint  createdDateTime;   
-        // uint  updatedDateTime;
         bool isCancelled;
     } 
 
@@ -98,9 +95,7 @@ contract House is SafeMath, Owned {
         address oracleAddress;
         address oldOracleAddress;
         bool  newBetsPaused;
-        uint  percentage;    
-        address[] ownerAddress;
-        uint256[] ownerPercentage;   
+        uint  housePercentage;    
         uint version;      
     } 
 
@@ -111,8 +106,16 @@ contract House is SafeMath, Owned {
     // This creates an array with all events
     mapping (uint => Bet) public bets;
 
+    // Member balances
     mapping (address => uint256) public balance;
 
+    // Stores the house owners percentage as part per thousand 
+    mapping (address => uint) public ownerPerc;
+
+    //The array of house owners
+    address[] public owners;
+
+    //House balance
     uint256 public houseCoins;
 
 
@@ -135,21 +138,22 @@ contract House is SafeMath, Owned {
      * Initializes House contract
      * Remix sample constructor call 1,"houseName","houseCreatorName","GR","0x692a70d2e424a56d2c6c27aa97d1a86395877b3a",["0x692a70d2e424a56d2c6c27aa97d1a86395877b3a","0xca35b7d915458ef540ade6068dfe2f44e8fa733c"],[50,50],2
      */
-    constructor(bool managed, string houseName, string houseCreatorName, string houseCountryISO, address oracleAddress, address[] ownerAddress, uint256[] ownerPercentage, uint housePercentage) public {
+    constructor(bool managed, string houseName, string houseCreatorName, string houseCountryISO, address oracleAddress, address[] ownerAddress, uint[] ownerPercentage, uint housePercentage) public {
         houseData.managed = managed;
         houseData.name = houseName;
         houseData.creatorName = houseCreatorName;
         houseData.countryISO = houseCountryISO;
-        houseData.percentage = housePercentage;
+        houseData.housePercentage = housePercentage;
         houseData.oracleAddress = oracleAddress;
         houseData.newBetsPaused = true;
         houseData.version = 100;
-        // houseData.createdTimestamp = now;
-        // houseData.lastUpdatedTimestamp = now;
+        uint ownersTotal = 0;
         for (uint i = 0; i<ownerAddress.length; i++) {
-            houseData.ownerAddress.push(ownerAddress[i]);
-            houseData.ownerPercentage.push(ownerPercentage[i]);
+            owners.push(ownerAddress[i]);
+            ownerPerc[ownerAddress[i]] = ownerPercentage[i];
+            ownersTotal += ownerPercentage[i];
             }
+        require(ownersTotal == 1000);    
         emit HouseCreated();
     }
 
@@ -180,7 +184,6 @@ contract House is SafeMath, Owned {
         require(oracleAddress != houseData.oracleAddress);
         houseData.oldOracleAddress = houseData.oracleAddress;
         houseData.oracleAddress = oracleAddress;
-       // houseData.lastUpdatedTimestamp = now;
         emit HousePropertiesUpdated();
     } 
 
@@ -189,9 +192,8 @@ contract House is SafeMath, Owned {
      *
      */
     function changeHouseEdge(uint housePercentage) onlyOwner public {
-        require(housePercentage != houseData.percentage);
-        houseData.percentage = housePercentage;
-        //houseData.lastUpdatedTimestamp = now;
+        require(housePercentage != houseData.housePercentage);
+        houseData.housePercentage = housePercentage;
         emit HousePropertiesUpdated();
     } 
 
@@ -240,7 +242,6 @@ contract House is SafeMath, Owned {
         if (payoutRate != 0) {
             bets[id].payoutRate = payoutRate;
         }       
-        bets[id].placedByNickName = placedBy;
         bets[id].placedBy = msg.sender;
         emit BetPlaced(id);  
     }  
@@ -253,6 +254,7 @@ contract House is SafeMath, Owned {
 
     function withdraw(uint256 amount) public {
         require(houseCoins>=amount);
+        require(balance[msg.sender]>=amount);
         balance[msg.sender] = sub(balance[msg.sender],amount);
         houseCoins = sub(houseCoins,amount);
         msg.sender.transfer(amount);
