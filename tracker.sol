@@ -57,7 +57,7 @@ contract Owned {
 interface HouseContract {
      function owner() external constant returns (address); 
      function isHouse() external constant returns (bool); 
-     }
+    }
 
 /*
  * ZKBet Tracker Contract.  Copyright © 2018 by ZKBet.
@@ -106,11 +106,11 @@ contract Tracker is SafeMath, Owned {
      *
      * Initializes Tracker data
      */
-    constructor(string trackerName, string trackerCreatorName, bool trackerIsManaged) public {
+    constructor(string trackerName, string trackerCreatorName, bool trackerIsManaged, uint version) public {
         trackerData.name = trackerName;
         trackerData.creatorName = trackerCreatorName;
         trackerData.managed = trackerIsManaged;
-        trackerData.trackerVersion = 100;
+        trackerData.trackerVersion = version;
         emit TrackerCreated();
     }
 
@@ -120,9 +120,9 @@ contract Tracker is SafeMath, Owned {
      * Updates trackersstats
      */
     function updateTrackerNames(string newName, string newCreatorName) onlyOwner public {
-            trackerData.name = newName;
-            trackerData.creatorName = newCreatorName;
-            emit TrackerNamesUpdated();
+        trackerData.name = newName;
+        trackerData.creatorName = newCreatorName;
+        emit TrackerNamesUpdated();
     }    
 
      /**

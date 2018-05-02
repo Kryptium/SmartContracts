@@ -56,7 +56,7 @@ contract Owned {
 
 interface OracleContract {
      function getEventForHousePlaceBet(uint id) external view returns (uint closeDateTime, bool isCancelled); 
-     }
+    }
 
 
 /*
@@ -95,7 +95,8 @@ contract House is SafeMath, Owned {
         address oracleAddress;
         address oldOracleAddress;
         bool  newBetsPaused;
-        uint  housePercentage;    
+        uint  housePercentage;
+        uint oraclePercentage;   
         uint version;      
     } 
 
@@ -138,15 +139,17 @@ contract House is SafeMath, Owned {
      * Initializes House contract
      * Remix sample constructor call 1,"houseName","houseCreatorName","GR","0x692a70d2e424a56d2c6c27aa97d1a86395877b3a",["0x692a70d2e424a56d2c6c27aa97d1a86395877b3a","0xca35b7d915458ef540ade6068dfe2f44e8fa733c"],[50,50],2
      */
-    constructor(bool managed, string houseName, string houseCreatorName, string houseCountryISO, address oracleAddress, address[] ownerAddress, uint[] ownerPercentage, uint housePercentage) public {
+    constructor(bool managed, string houseName, string houseCreatorName, string houseCountryISO, address oracleAddress, address[] ownerAddress, uint[] ownerPercentage, uint housePercentage,uint oraclePercentage, uint version) public {
+        require(add(housePercentage,oraclePercentage)<1000);
         houseData.managed = managed;
         houseData.name = houseName;
         houseData.creatorName = houseCreatorName;
         houseData.countryISO = houseCountryISO;
         houseData.housePercentage = housePercentage;
+        houseData.oraclePercentage = oraclePercentage;
         houseData.oracleAddress = oracleAddress;
         houseData.newBetsPaused = true;
-        houseData.version = 100;
+        houseData.version = version;
         uint ownersTotal = 0;
         for (uint i = 0; i<ownerAddress.length; i++) {
             owners.push(ownerAddress[i]);
@@ -172,7 +175,6 @@ contract House is SafeMath, Owned {
         houseData.name = houseName;
         houseData.creatorName = houseCreatorName;
         houseData.countryISO = houseCountryISO;     
-        //houseData.lastUpdatedTimestamp = now;
         emit HousePropertiesUpdated();
     }    
 
@@ -180,10 +182,13 @@ contract House is SafeMath, Owned {
      * Updates House Oracle function
      *
      */
-    function changeHouseOracle(address oracleAddress) onlyOwner public {
-        require(oracleAddress != houseData.oracleAddress);
-        houseData.oldOracleAddress = houseData.oracleAddress;
-        houseData.oracleAddress = oracleAddress;
+    function changeHouseOracle(address oracleAddress, uint oraclePercentage) onlyOwner public {
+        require(add(houseData.housePercentage,oraclePercentage)<1000);
+        if (oracleAddress != houseData.oracleAddress) {
+            houseData.oldOracleAddress = houseData.oracleAddress;
+            houseData.oracleAddress = oracleAddress;
+        }
+        houseData.oraclePercentage = oraclePercentage;
         emit HousePropertiesUpdated();
     } 
 
