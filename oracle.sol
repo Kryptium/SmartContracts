@@ -59,11 +59,7 @@ contract Owned {
  */
 contract Oracle is SafeMath, Owned {
 
-    enum Category { football, basket }
-
-    enum EventChange { newEvent, updatedEvent, cancelledEvent, eventOutcomeManuallyFrozen }
-
-    enum EventOutputType { multichoice, numeric }
+    enum EventOutputType { stringarray, numeric }
 
     uint private eventNextId;
     uint private subcategoryNextId;
@@ -74,7 +70,7 @@ contract Oracle is SafeMath, Owned {
         uint  startDateTime;   
         uint  endDateTime;
         uint  subcategoryId;   
-        Category  category;   
+        uint  categoryId;   
         uint closeDateTime;     
         uint freezeDateTime;
         bool isCancelled;
@@ -92,17 +88,12 @@ contract Oracle is SafeMath, Owned {
     }
 
 
-    struct EventOutputParameter {
-        EventOutputType eventOutputType;
-        string title;
-        string[] possibleResults;        
-    }
 
     struct EventOutput {
         bool isSet;
         string title;
         uint possibleResultsCount;
-        mapping (uint => string) possibleResults;  
+        mapping (uint => bytes32) possibleResults;  
         EventOutputType  eventOutputType;
         bool isEventOutcomeSet;   
     }
@@ -118,7 +109,7 @@ contract Oracle is SafeMath, Owned {
 
     struct Subcategory {
         uint id;
-        Category category;
+        uint  categoryId; 
         string name;
         string country;
         bool hidden;
@@ -149,20 +140,23 @@ contract Oracle is SafeMath, Owned {
     // Notifies clients that an Oracle data has changed
     event OraclePropertiesUpdated();    
 
-    // Notifies clients that an Oracle subcategory has changed
-    event OracleSubcategoriesUpdated(uint id, Category category, string name,string country, bool hidden);    
+    // Notifies clients that an Oracle subcategory has added
+    event OracleSubcategoryAdded(uint id);    
 
+    // Notifies clients that an Oracle subcategory has changed
+    event OracleSubcategoryUpdated(uint id);    
+
+    // Notifies clients that an Oracle Event has Added
+    event UpcomingEventAdded(uint id);
+
+    
     // Notifies clients that an Oracle Event has changed
-    event UpcomingEventChanged(uint id, string title, uint startDateTime, uint endDateTime, uint subcategory, Category category, uint closeDateTime, uint freezeDateTime, EventChange eventChange);
+    event UpcomingEventUpdated(uint id);
 
     // Notifies clients that an Oracle Event outcome has changed
     event EventOutcomeChanged(uint eventId, uint outputId);
 
-    // Notifies clients that an Oracle Event added
-    event UpcomingEventAdded(uint eventId);
 
-    // Notifies clients that an Oracle Event added
-    event UpcomingEventUpdated(uint eventId);
 
     /**
      * Constructor function
@@ -204,15 +198,15 @@ contract Oracle is SafeMath, Owned {
     /**
      * Adds an Oracle Subcategories
      */
-    function setSubcategory(Category category, string name,string country) onlyOwner public {
+    function setSubcategory(uint categoryId, string name,string country) onlyOwner public {
         subcategoryNextId += 1;
         uint id = subcategoryNextId;
         subcategories[id].id = id;
-        subcategories[id].category = category;
+        subcategories[id].categoryId = categoryId;
         subcategories[id].name = name;
         subcategories[id].country = country;
         subcategories[id].hidden = false;
-        emit OracleSubcategoriesUpdated(id, category, name, country, false);
+        emit OracleSubcategoryAdded(id);
     }  
 
     /**
@@ -220,7 +214,7 @@ contract Oracle is SafeMath, Owned {
      */
     function hideSubcategory(uint id) onlyOwner public {
         subcategories[id].hidden = true;
-        emit OracleSubcategoriesUpdated(id, subcategories[id].category, subcategories[id].name,subcategories[id].country, subcategories[id].hidden);
+        emit OracleSubcategoryUpdated(id);
     }   
 
     /**
@@ -228,7 +222,7 @@ contract Oracle is SafeMath, Owned {
      * Remix sample call "OSFP-PAO", 1521755089, 1521752289, 0, 0,[{"title":"LALA","eventOutputType":0,"possibleResults":["HOME","DRAW","AWAY"]}]
      * Remix sample call "AEK-PAOK", 1519431000, 1519431600, 1, 0
      */
-    function addUpcomingEvent(string title, uint startDateTime, uint endDateTime, uint subcategoryId, Category category, string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults) onlyOwner public {        
+    function addUpcomingEvent(string title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId, string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults) onlyOwner public {        
         uint closeDateTime = startDateTime - oracleData.closeEventOutcomeTime * 1 minutes;
         uint freezeDateTime = endDateTime + oracleData.closeEventOutcomeTime * 1 minutes;
         require(closeDateTime >= now);
@@ -239,7 +233,7 @@ contract Oracle is SafeMath, Owned {
         events[id].startDateTime = startDateTime;
         events[id].endDateTime = endDateTime;
         events[id].subcategoryId = subcategoryId;
-        events[id].category = category;
+        events[id].categoryId = categoryId;
         events[id].closeDateTime = closeDateTime;
         events[id].freezeDateTime = freezeDateTime;
         events[id].totalAvailableOutputs = 1;
@@ -258,14 +252,14 @@ contract Oracle is SafeMath, Owned {
      * Updates an Upcoming Event
      * Remix sample call 1, "AEK-PAOK", 1519456520, 1519456700, 1, 0
      */
-    function updateUpcomingEvent(uint id, string title, uint startDateTime, uint endDateTime, uint subcategoryId, Category category) onlyOwner public {
+    function updateUpcomingEvent(uint id, string title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId) onlyOwner public {
         uint closeDateTime = startDateTime - oracleData.closeEventOutcomeTime * 1 minutes;
         uint freezeDateTime = endDateTime + oracleData.closeEventOutcomeTime * 1 minutes;
         events[id].title = title;
         events[id].startDateTime = startDateTime;
         events[id].endDateTime = endDateTime;
         events[id].subcategoryId = subcategoryId;
-        events[id].category = category;
+        events[id].categoryId = categoryId;
         events[id].closeDateTime = closeDateTime;
         events[id].freezeDateTime = freezeDateTime;
         if (closeDateTime < now) {
@@ -291,6 +285,11 @@ contract Oracle is SafeMath, Owned {
         require(events[eventId].freezeDateTime > now && events[eventId].endDateTime < now && !events[eventId].isCancelled);
         require(eventOutputs[eventId][outputId].isSet && eventOutputs[eventId][outputId].eventOutputType == EventOutputType.numeric);
         eventNumericOutcomes[eventId][outputId].outcome1 = outcome1;
+        eventNumericOutcomes[eventId][outputId].outcome2 = outcome2;
+        eventNumericOutcomes[eventId][outputId].outcome3 = outcome3;
+        eventNumericOutcomes[eventId][outputId].outcome4 = outcome4;
+        eventNumericOutcomes[eventId][outputId].outcome5 = outcome5;
+        eventNumericOutcomes[eventId][outputId].outcome6 = outcome6;
         eventOutputs[eventId][outputId].isEventOutcomeSet = true;
         if (setEventAnnouncement) {
             events[eventId].announcement = announcement;
@@ -303,7 +302,7 @@ contract Oracle is SafeMath, Owned {
      */
     function setEventOutcome(uint eventId, uint outputId, string announcement, bool setEventAnnouncement, uint _eventOutcome ) onlyOwner public {
         require(events[eventId].freezeDateTime > now && events[eventId].endDateTime < now && !events[eventId].isCancelled);
-        require(eventOutputs[eventId][outputId].isSet && eventOutputs[eventId][outputId].eventOutputType == EventOutputType.multichoice);
+        require(eventOutputs[eventId][outputId].isSet && eventOutputs[eventId][outputId].eventOutputType == EventOutputType.stringarray);
         eventOutputs[eventId][outputId].isEventOutcomeSet = true;
         eventOutcome[eventId][outputId] = _eventOutcome;
         if (setEventAnnouncement) {
@@ -338,7 +337,7 @@ contract Oracle is SafeMath, Owned {
      * Get event outcome
      */
     function getEventOutcome(uint eventId, uint outputId) public view returns(uint outcome) {
-        require(eventOutputs[eventId][outputId].isSet && !events[eventId].isCancelled && eventOutputs[eventId][outputId].eventOutputType==EventOutputType.multichoice);
+        require(eventOutputs[eventId][outputId].isSet && !events[eventId].isCancelled && eventOutputs[eventId][outputId].eventOutputType==EventOutputType.stringarray);
         return (eventOutcome[eventId][outputId]);
     }
 

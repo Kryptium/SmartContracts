@@ -54,10 +54,13 @@ contract Owned {
 }
 
 
+/*
+House smart contract interface
+*/
 interface HouseContract {
-     function owner() external constant returns (address); 
-     function isHouse() external constant returns (bool); 
-    }
+     function owner() external view returns (address); 
+     function isHouse() external view returns (bool); 
+}
 
 /*
  * ZKBet Tracker Contract.  Copyright © 2018 by ZKBet.
