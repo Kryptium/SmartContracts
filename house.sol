@@ -56,7 +56,7 @@ contract Owned {
 
 interface OracleContract {
      function getEventForHousePlaceBet(uint id) external view returns (uint closeDateTime, bool isCancelled); 
-    }
+}
 
 
 /*
@@ -107,7 +107,7 @@ contract House is SafeMath, Owned {
     // This creates an array with all events
     mapping (uint => Bet) public bets;
 
-    // Member balances
+    // User balances
     mapping (address => uint256) public balance;
 
     // Stores the house owners percentage as part per thousand 
@@ -257,12 +257,21 @@ contract House is SafeMath, Owned {
         balance[msg.sender] = add(balance[msg.sender],msg.value);
     }
 
+
     function withdraw(uint256 amount) public {
         require(houseCoins>=amount);
         require(balance[msg.sender]>=amount);
         balance[msg.sender] = sub(balance[msg.sender],amount);
         houseCoins = sub(houseCoins,amount);
         msg.sender.transfer(amount);
+    }
+
+    function withdrawToAddress(address destinationAddress,uint256 amount) public {
+        require(houseCoins>=amount);
+        require(balance[msg.sender]>=amount);
+        balance[msg.sender] = sub(balance[msg.sender],amount);
+        houseCoins = sub(houseCoins,amount);
+        destinationAddress.transfer(amount);
     }
 
     // function updateBetOptionalParameters(uint id, uint256 wager, uint closingDateTime, uint256 minimumWager, uint256 maximumWager, uint256 payoutRate, string placedBy) public {
