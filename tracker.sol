@@ -192,7 +192,7 @@ contract Tracker is SafeMath, Owned {
      * DownVotes a house
      */
     function downVoteHouse(address houseAddress) public {
-        houses[houseAddress].upVotes -= 1;
+        houses[houseAddress].upVotes += 1;
         emit TrackerChanged(houseAddress,Action.updated);
     }    
 

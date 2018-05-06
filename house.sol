@@ -53,9 +53,19 @@ contract Owned {
     }
 }
 
-
+/*
+House smart contract interface
+*/
 interface OracleContract {
      function getEventForHousePlaceBet(uint id) external view returns (uint closeDateTime, bool isCancelled); 
+}
+
+/*
+House smart contract interface
+*/
+interface HouseContract {
+     function owner() external view returns (address); 
+     function isHouse() external view returns (bool); 
 }
 
 
@@ -93,14 +103,14 @@ contract House is SafeMath, Owned {
         string  creatorName;
         string  countryISO; 
         address oracleAddress;
-        address oldOracleAddress;
+        address oldOracleAddress;       
         bool  newBetsPaused;
         uint  housePercentage;
         uint oraclePercentage;   
         uint version;      
     } 
 
-
+    address public _newHouseAddress;
 
     HouseData public houseData;  
 
@@ -137,7 +147,7 @@ contract House is SafeMath, Owned {
      * Constructor function
      *
      * Initializes House contract
-     * Remix sample constructor call 1,"houseName","houseCreatorName","GR","0x692a70d2e424a56d2c6c27aa97d1a86395877b3a",["0x692a70d2e424a56d2c6c27aa97d1a86395877b3a","0xca35b7d915458ef540ade6068dfe2f44e8fa733c"],[50,50],2
+     * Remix sample constructor call 1,"JZ HOUSE 2","JZ","GR","0x29dfb91b431a1f12c0e9ae8e11951160ae1a3ebb",["0x29dfb91b431a1f12c0e9ae8e11951160ae1a3ebb"],[50],20,20,100
      */
     constructor(bool managed, string houseName, string houseCreatorName, string houseCountryISO, address oracleAddress, address[] ownerAddress, uint[] ownerPercentage, uint housePercentage,uint oraclePercentage, uint version) public {
         require(add(housePercentage,oraclePercentage)<1000);
@@ -255,6 +265,20 @@ contract House is SafeMath, Owned {
     function() public payable {
         houseCoins = add(houseCoins,msg.value);
         balance[msg.sender] = add(balance[msg.sender],msg.value);
+    }
+
+    function linkToNewHouse(address newHouseAddress) onlyOwner public {
+        require(newHouseAddress!=address(this));
+        require(HouseContract(newHouseAddress).isHouse());
+        _newHouseAddress = newHouseAddress;
+        houseData.newBetsPaused = true;
+        emit HousePropertiesUpdated();
+    }
+
+    function unLinkNewHouse() onlyOwner public {
+        _newHouseAddress = address(0);
+        houseData.newBetsPaused = false;
+        emit HousePropertiesUpdated();
     }
 
 
