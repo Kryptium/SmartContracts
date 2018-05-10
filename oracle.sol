@@ -249,6 +249,22 @@ contract Oracle is SafeMath, Owned {
     }  
 
     /**
+     * Adds a new output to existing an Upcoming Event
+     */
+    function addUpcomingEventOutput(uint id,  string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults) onlyOwner public {        
+        require(events[id].closeDateTime >= now);
+        events[id].totalAvailableOutputs += 1;
+        eventOutputs[id][events[id].totalAvailableOutputs].isSet = true;
+        eventOutputs[id][events[id].totalAvailableOutputs].title = outputTitle;
+        eventOutputs[id][events[id].totalAvailableOutputs].possibleResultsCount = _possibleResults.length;
+        eventOutputs[id][events[id].totalAvailableOutputs].eventOutputType = eventOutputType;
+        for (uint j = 0; j<_possibleResults.length; j++) {
+            eventOutputs[id][events[id].totalAvailableOutputs].possibleResults[j] = _possibleResults[j];            
+        }
+        emit UpcomingEventAdded(id);
+    }
+
+    /**
      * Updates an Upcoming Event
      * Remix sample call 1, "AEK-PAOK", 1519456520, 1519456700, 1, 0
      */
