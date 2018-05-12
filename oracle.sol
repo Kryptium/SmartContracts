@@ -79,12 +79,12 @@ contract Oracle is SafeMath, Owned {
     } 
 
     struct EventOutcome {
-        uint outcome1;
-        uint outcome2;
-        uint outcome3;
-        uint outcome4;
-        uint outcome5;
-        uint outcome6;
+        uint256 outcome1;
+        uint256 outcome2;
+        uint256 outcome3;
+        uint256 outcome4;
+        uint256 outcome5;
+        uint256 outcome6;
     }
 
 
@@ -93,9 +93,10 @@ contract Oracle is SafeMath, Owned {
         bool isSet;
         string title;
         uint possibleResultsCount;
-        mapping (uint => bytes32) possibleResults;  
         EventOutputType  eventOutputType;
-        bool isEventOutcomeSet;   
+        bool isEventOutcomeSet;  
+        string announcement; 
+        uint decimals;
     }
 
 
@@ -123,6 +124,9 @@ contract Oracle is SafeMath, Owned {
     // This creates an array with all events
     mapping (uint => Event) public events;
 
+    // Event output possible results
+    mapping (uint =>mapping (uint => mapping (uint => bytes32))) public eventOutputPossibleResults;  
+
     // Event output Outcome
     mapping (uint => mapping (uint => EventOutput)) public eventOutputs;
 
@@ -145,16 +149,9 @@ contract Oracle is SafeMath, Owned {
 
     // Notifies clients that an Oracle subcategory has changed
     event OracleSubcategoryUpdated(uint id);    
-
-    // Notifies clients that an Oracle Event has Added
-    event UpcomingEventAdded(uint id);
-
     
     // Notifies clients that an Oracle Event has changed
     event UpcomingEventUpdated(uint id);
-
-    // Notifies clients that an Oracle Event outcome has changed
-    event EventOutcomeChanged(uint eventId, uint outputId);
 
 
 
@@ -222,7 +219,7 @@ contract Oracle is SafeMath, Owned {
      * Remix sample call "OSFP-PAO", 1521755089, 1521752289, 0, 0,[{"title":"LALA","eventOutputType":0,"possibleResults":["HOME","DRAW","AWAY"]}]
      * Remix sample call "AEK-PAOK", 1519431000, 1519431600, 1, 0
      */
-    function addUpcomingEvent(string title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId, string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults) onlyOwner public {        
+    function addUpcomingEvent(string title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId, string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults,uint decimals) onlyOwner public {        
         uint closeDateTime = startDateTime - oracleData.closeEventOutcomeTime * 1 minutes;
         uint freezeDateTime = endDateTime + oracleData.closeEventOutcomeTime * 1 minutes;
         require(closeDateTime >= now);
@@ -236,32 +233,33 @@ contract Oracle is SafeMath, Owned {
         events[id].categoryId = categoryId;
         events[id].closeDateTime = closeDateTime;
         events[id].freezeDateTime = freezeDateTime;
-        events[id].totalAvailableOutputs = 1;
         eventOutputs[id][events[id].totalAvailableOutputs].isSet = true;
         eventOutputs[id][events[id].totalAvailableOutputs].title = outputTitle;
         eventOutputs[id][events[id].totalAvailableOutputs].possibleResultsCount = _possibleResults.length;
         eventOutputs[id][events[id].totalAvailableOutputs].eventOutputType = eventOutputType;
+        eventOutputs[id][events[id].totalAvailableOutputs].decimals = decimals;
         for (uint j = 0; j<_possibleResults.length; j++) {
-            eventOutputs[id][events[id].totalAvailableOutputs].possibleResults[j] = _possibleResults[j];            
+            eventOutputPossibleResults[id][events[id].totalAvailableOutputs][j] = _possibleResults[j];            
         }
-
-        emit UpcomingEventAdded(id);
+        events[id].totalAvailableOutputs += 1;
+        emit UpcomingEventUpdated(id);
     }  
 
     /**
      * Adds a new output to existing an Upcoming Event
      */
-    function addUpcomingEventOutput(uint id,  string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults) onlyOwner public {        
-        require(events[id].closeDateTime >= now);
-        events[id].totalAvailableOutputs += 1;
+    function addUpcomingEventOutput(uint id,  string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults,uint decimals) onlyOwner public {        
+        require(events[id].closeDateTime >= now);      
         eventOutputs[id][events[id].totalAvailableOutputs].isSet = true;
         eventOutputs[id][events[id].totalAvailableOutputs].title = outputTitle;
         eventOutputs[id][events[id].totalAvailableOutputs].possibleResultsCount = _possibleResults.length;
         eventOutputs[id][events[id].totalAvailableOutputs].eventOutputType = eventOutputType;
+        eventOutputs[id][events[id].totalAvailableOutputs].decimals = decimals;
         for (uint j = 0; j<_possibleResults.length; j++) {
-            eventOutputs[id][events[id].totalAvailableOutputs].possibleResults[j] = _possibleResults[j];            
-        }
-        emit UpcomingEventAdded(id);
+            eventOutputPossibleResults[id][events[id].totalAvailableOutputs][j] = _possibleResults[j];
+        }  
+        events[id].totalAvailableOutputs += 1;             
+        emit UpcomingEventUpdated(id);
     }
 
     /**
@@ -297,8 +295,8 @@ contract Oracle is SafeMath, Owned {
     /**
      * Set the numeric type outcome of Event output
      */
-    function setEventOutcomeNumeric(uint eventId, uint outputId, string announcement, bool setEventAnnouncement, uint outcome1, uint outcome2,uint outcome3,uint outcome4, uint outcome5, uint outcome6) onlyOwner public {
-        require(events[eventId].freezeDateTime > now && events[eventId].endDateTime < now && !events[eventId].isCancelled);
+    function setEventOutcomeNumeric(uint eventId, uint outputId, string announcement, bool setEventAnnouncement, uint256 outcome1, uint256 outcome2,uint256 outcome3,uint256 outcome4, uint256 outcome5, uint256 outcome6) onlyOwner public {
+        require(events[eventId].freezeDateTime > now  && !events[eventId].isCancelled);
         require(eventOutputs[eventId][outputId].isSet && eventOutputs[eventId][outputId].eventOutputType == EventOutputType.numeric);
         eventNumericOutcomes[eventId][outputId].outcome1 = outcome1;
         eventNumericOutcomes[eventId][outputId].outcome2 = outcome2;
@@ -307,24 +305,26 @@ contract Oracle is SafeMath, Owned {
         eventNumericOutcomes[eventId][outputId].outcome5 = outcome5;
         eventNumericOutcomes[eventId][outputId].outcome6 = outcome6;
         eventOutputs[eventId][outputId].isEventOutcomeSet = true;
+        eventOutputs[eventId][outputId].announcement = announcement;
         if (setEventAnnouncement) {
             events[eventId].announcement = announcement;
         }     
-        emit EventOutcomeChanged(eventId, outputId); 
+        emit UpcomingEventUpdated(eventId); 
     }  
 
      /**
      * Set the outcome of Event output
      */
     function setEventOutcome(uint eventId, uint outputId, string announcement, bool setEventAnnouncement, uint _eventOutcome ) onlyOwner public {
-        require(events[eventId].freezeDateTime > now && events[eventId].endDateTime < now && !events[eventId].isCancelled);
+        require(events[eventId].freezeDateTime > now && !events[eventId].isCancelled);
         require(eventOutputs[eventId][outputId].isSet && eventOutputs[eventId][outputId].eventOutputType == EventOutputType.stringarray);
         eventOutputs[eventId][outputId].isEventOutcomeSet = true;
         eventOutcome[eventId][outputId] = _eventOutcome;
+        eventOutputs[eventId][outputId].announcement = announcement;
         if (setEventAnnouncement) {
             events[eventId].announcement = announcement;
         } 
-        emit EventOutcomeChanged(eventId, outputId); 
+        emit UpcomingEventUpdated(eventId); 
     } 
 
 
@@ -344,7 +344,7 @@ contract Oracle is SafeMath, Owned {
     /**
      * Get event outcome numeric
      */
-    function getEventOutcomeNumeric(uint eventId, uint outputId) public view returns(uint outcome1, uint outcome2,uint outcome3,uint outcome4, uint outcome5, uint outcome6) {
+    function getEventOutcomeNumeric(uint eventId, uint outputId) public view returns(uint256 outcome1, uint256 outcome2,uint256 outcome3,uint256 outcome4, uint256 outcome5, uint256 outcome6) {
         require(eventOutputs[eventId][outputId].isSet && !events[eventId].isCancelled && eventOutputs[eventId][outputId].eventOutputType==EventOutputType.numeric);
         return (eventNumericOutcomes[eventId][outputId].outcome1,eventNumericOutcomes[eventId][outputId].outcome2,eventNumericOutcomes[eventId][outputId].outcome3,eventNumericOutcomes[eventId][outputId].outcome4,eventNumericOutcomes[eventId][outputId].outcome5,eventNumericOutcomes[eventId][outputId].outcome6);
     }

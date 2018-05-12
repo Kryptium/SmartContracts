@@ -247,7 +247,7 @@ contract House is SafeMath, Owned {
         } else {
             bets[id].closingDateTime = closeDateTime;
         }  
-        require(bets[id].closingDateTime >= now);    
+        require(bets[id].closingDateTime >= now);
         if (minimumWager != 0) {
             bets[id].minimumWager = minimumWager;
         }
