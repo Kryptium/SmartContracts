@@ -1,1 +1,1 @@
-[{"constant":true,"inputs":[{"name":"id","type":"uint256"}],"name":"getEventForHousePlaceBet","outputs":[{"name":"closeDateTime","type":"uint256"},{"name":"isCancelled","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"}]
+[{"constant":true,"inputs":[{"name":"id","type":"uint256"}],"name":"getEventForHousePlaceBet","outputs":[{"name":"closeDateTime","type":"uint256"},{"name":"freezeDateTime","type":"uint256"},{"name":"isCancelled","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"}]

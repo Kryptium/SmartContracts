@@ -296,7 +296,7 @@ contract Oracle is SafeMath, Owned {
      * Set the numeric type outcome of Event output
      */
     function setEventOutcomeNumeric(uint eventId, uint outputId, string announcement, bool setEventAnnouncement, uint256 outcome1, uint256 outcome2,uint256 outcome3,uint256 outcome4, uint256 outcome5, uint256 outcome6) onlyOwner public {
-        require(events[eventId].freezeDateTime > now  && !events[eventId].isCancelled);
+        require((events[eventId].freezeDateTime > now || !eventOutputs[eventId][outputId].isEventOutcomeSet) && !events[eventId].isCancelled);
         require(eventOutputs[eventId][outputId].isSet && eventOutputs[eventId][outputId].eventOutputType == EventOutputType.numeric);
         eventNumericOutcomes[eventId][outputId].outcome1 = outcome1;
         eventNumericOutcomes[eventId][outputId].outcome2 = outcome2;
@@ -316,7 +316,7 @@ contract Oracle is SafeMath, Owned {
      * Set the outcome of Event output
      */
     function setEventOutcome(uint eventId, uint outputId, string announcement, bool setEventAnnouncement, uint _eventOutcome ) onlyOwner public {
-        require(events[eventId].freezeDateTime > now && !events[eventId].isCancelled);
+        require((events[eventId].freezeDateTime > now || !eventOutputs[eventId][outputId].isEventOutcomeSet) && !events[eventId].isCancelled);
         require(eventOutputs[eventId][outputId].isSet && eventOutputs[eventId][outputId].eventOutputType == EventOutputType.stringarray);
         eventOutputs[eventId][outputId].isEventOutcomeSet = true;
         eventOutcome[eventId][outputId] = _eventOutcome;
@@ -349,7 +349,7 @@ contract Oracle is SafeMath, Owned {
         return (eventNumericOutcomes[eventId][outputId].outcome1,eventNumericOutcomes[eventId][outputId].outcome2,eventNumericOutcomes[eventId][outputId].outcome3,eventNumericOutcomes[eventId][outputId].outcome4,eventNumericOutcomes[eventId][outputId].outcome5,eventNumericOutcomes[eventId][outputId].outcome6);
     }
 
-        /**
+    /**
      * Get event outcome
      */
     function getEventOutcome(uint eventId, uint outputId) public view returns(uint outcome) {
