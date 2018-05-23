@@ -79,6 +79,8 @@ contract House is SafeMath, Owned {
 
     enum BetType { headtohead, multiuser, poolbet }
 
+    enum BetEvent { placeBet, callBet, removeBet, refuteBet, settleBet, increaseWager }
+
     uint private betNextId;
 
     struct Bet { 
@@ -185,7 +187,7 @@ contract House is SafeMath, Owned {
     // Notifies clients that a house data has changed
     event HousePropertiesUpdated();    
 
-    event BetPlacedOrModified(uint id);
+    event BetPlacedOrModified(uint id, address sender, BetEvent betEvent, uint256);
 
 
     /**
@@ -316,7 +318,7 @@ contract House is SafeMath, Owned {
 
         totalPlayerBetsAmount[msg.sender] += wager;
 
-        emit BetPlacedOrModified(betNextId);  
+        emit BetPlacedOrModified(betNextId, msg.sender, BetEvent.placeBet, wager);
     }  
 
     /*
@@ -359,7 +361,7 @@ contract House is SafeMath, Owned {
             totalPlayerBetsAmount[msg.sender] += wager;
 
         }
-        emit BetPlacedOrModified(betId);   
+        emit BetPlacedOrModified(betId, msg.sender, BetEvent.callBet, wager);
     }  
 
     /*
@@ -390,7 +392,7 @@ contract House is SafeMath, Owned {
 
         totalPlayerBetsAmount[msg.sender] -= wager;
 
-        emit BetPlacedOrModified(betId);   
+        emit BetPlacedOrModified(betId, msg.sender, BetEvent.removeBet, wager);
     } 
 
     /*
@@ -407,7 +409,7 @@ contract House is SafeMath, Owned {
         if (betRefutes[betId] >= betTotalBets[betId]) {
             bets[betId] .isCancelled;   
         }
-        emit BetPlacedOrModified(betId);   
+        emit BetPlacedOrModified(betId, msg.sender, BetEvent.refuteBet, playerBetTotalAmount[msg.sender][betId]);
     } 
 
     function() public payable {
