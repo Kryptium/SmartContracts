@@ -94,7 +94,6 @@ contract Oracle is SafeMath, Owned {
         string title;
         uint possibleResultsCount;
         EventOutputType  eventOutputType;
-        bool isEventOutcomeSet;  
         string announcement; 
         uint decimals;
     }
@@ -222,7 +221,7 @@ contract Oracle is SafeMath, Owned {
     function addUpcomingEvent(string title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId, string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults,uint decimals) onlyOwner public {        
         uint closeDateTime = startDateTime - oracleData.closeEventOutcomeTime * 1 minutes;
         uint freezeDateTime = endDateTime + oracleData.closeEventOutcomeTime * 1 minutes;
-        require(closeDateTime >= now);
+        require(closeDateTime >= now,"Close time should be greater than now");
         eventNextId += 1;
         uint id = eventNextId;
         events[id].id = id;
@@ -248,8 +247,8 @@ contract Oracle is SafeMath, Owned {
     /**
      * Adds a new output to existing an Upcoming Event
      */
-    function addUpcomingEventOutput(uint id,  string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults,uint decimals) onlyOwner public {        
-        require(events[id].closeDateTime >= now);      
+    function addUpcomingEventOutput(uint id,  string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults,uint decimals) onlyOwner public {
+        require(events[id].closeDateTime >= now,"Close time should be greater than now");
         eventOutputs[id][events[id].totalAvailableOutputs].isSet = true;
         eventOutputs[id][events[id].totalAvailableOutputs].title = outputTitle;
         eventOutputs[id][events[id].totalAvailableOutputs].possibleResultsCount = _possibleResults.length;
@@ -286,7 +285,7 @@ contract Oracle is SafeMath, Owned {
      * Cancels an Upcoming Event
      */
     function cancelUpcomingEvent(uint id) onlyOwner public {
-        require(events[id].freezeDateTime >= now);
+        require(events[id].freezeDateTime >= now,"Freeze time should be greater than now");
         events[id].isCancelled = true;
         emit UpcomingEventUpdated(id); 
     }  
@@ -296,15 +295,16 @@ contract Oracle is SafeMath, Owned {
      * Set the numeric type outcome of Event output
      */
     function setEventOutcomeNumeric(uint eventId, uint outputId, string announcement, bool setEventAnnouncement, uint256 outcome1, uint256 outcome2,uint256 outcome3,uint256 outcome4, uint256 outcome5, uint256 outcome6) onlyOwner public {
-        require((events[eventId].freezeDateTime > now || !eventOutputs[eventId][outputId].isEventOutcomeSet) && !events[eventId].isCancelled);
-        require(eventOutputs[eventId][outputId].isSet && eventOutputs[eventId][outputId].eventOutputType == EventOutputType.numeric);
+        require(events[eventId].freezeDateTime > now,"Freeze time should be greater than now");
+        require(!events[eventId].isCancelled,"Cancelled Event");
+        require(eventOutputs[eventId][outputId].eventOutputType == EventOutputType.numeric,"Required numeric Event type");
         eventNumericOutcomes[eventId][outputId].outcome1 = outcome1;
         eventNumericOutcomes[eventId][outputId].outcome2 = outcome2;
         eventNumericOutcomes[eventId][outputId].outcome3 = outcome3;
         eventNumericOutcomes[eventId][outputId].outcome4 = outcome4;
         eventNumericOutcomes[eventId][outputId].outcome5 = outcome5;
         eventNumericOutcomes[eventId][outputId].outcome6 = outcome6;
-        eventOutputs[eventId][outputId].isEventOutcomeSet = true;
+        eventOutputs[eventId][outputId].isSet = true;
         eventOutputs[eventId][outputId].announcement = announcement;
         if (setEventAnnouncement) {
             events[eventId].announcement = announcement;
@@ -316,9 +316,10 @@ contract Oracle is SafeMath, Owned {
      * Set the outcome of Event output
      */
     function setEventOutcome(uint eventId, uint outputId, string announcement, bool setEventAnnouncement, uint _eventOutcome ) onlyOwner public {
-        require((events[eventId].freezeDateTime > now || !eventOutputs[eventId][outputId].isEventOutcomeSet) && !events[eventId].isCancelled);
-        require(eventOutputs[eventId][outputId].isSet && eventOutputs[eventId][outputId].eventOutputType == EventOutputType.stringarray);
-        eventOutputs[eventId][outputId].isEventOutcomeSet = true;
+        require(events[eventId].freezeDateTime > now,"Freeze time should be greater than now");
+        require(!events[eventId].isCancelled,"Cancelled Event");
+        require(eventOutputs[eventId][outputId].eventOutputType == EventOutputType.stringarray,"Required array of options Event type");
+        eventOutputs[eventId][outputId].isSet = true;
         eventOutcome[eventId][outputId] = _eventOutcome;
         eventOutputs[eventId][outputId].announcement = announcement;
         if (setEventAnnouncement) {
@@ -332,7 +333,7 @@ contract Oracle is SafeMath, Owned {
      * set a new freeze datetime of an Event
      */
     function freezeEventOutcome(uint id, uint newFreezeDateTime) onlyOwner public {
-        require(!events[id].isCancelled);
+        require(!events[id].isCancelled,"Cancelled Event");
         if (newFreezeDateTime > now) {
             events[id].freezeDateTime = newFreezeDateTime;
         } else {
@@ -345,7 +346,7 @@ contract Oracle is SafeMath, Owned {
      * Get event outcome numeric
      */
     function getEventOutcomeNumeric(uint eventId, uint outputId) public view returns(uint256 outcome1, uint256 outcome2,uint256 outcome3,uint256 outcome4, uint256 outcome5, uint256 outcome6) {
-        require(eventOutputs[eventId][outputId].isSet && !events[eventId].isCancelled && eventOutputs[eventId][outputId].eventOutputType==EventOutputType.numeric);
+        require(eventOutputs[eventId][outputId].isSet && eventOutputs[eventId][outputId].eventOutputType==EventOutputType.numeric);
         return (eventNumericOutcomes[eventId][outputId].outcome1,eventNumericOutcomes[eventId][outputId].outcome2,eventNumericOutcomes[eventId][outputId].outcome3,eventNumericOutcomes[eventId][outputId].outcome4,eventNumericOutcomes[eventId][outputId].outcome5,eventNumericOutcomes[eventId][outputId].outcome6);
     }
 
@@ -353,7 +354,7 @@ contract Oracle is SafeMath, Owned {
      * Get event outcome
      */
     function getEventOutcome(uint eventId, uint outputId) public view returns(uint outcome) {
-        require(eventOutputs[eventId][outputId].isSet && !events[eventId].isCancelled && eventOutputs[eventId][outputId].eventOutputType==EventOutputType.stringarray);
+        require(eventOutputs[eventId][outputId].isSet && eventOutputs[eventId][outputId].eventOutputType==EventOutputType.stringarray);
         return (eventOutcome[eventId][outputId]);
     }
 

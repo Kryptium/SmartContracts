@@ -135,10 +135,10 @@ contract Tracker is SafeMath, Owned {
      * Adds a new house
      */
     function addHouse(address houseAddress) public {
-        require(!trackerData.managed || msg.sender==owner);
-        require(!houses[houseAddress].isActive);    
+        require(!trackerData.managed || msg.sender==owner,"Tracker is managed");
+        require(!houses[houseAddress].isActive,"There is a new version of House already registered");    
         HouseContract houseContract = HouseContract(houseAddress);
-        require(houseContract.isHouse());
+        require(houseContract.isHouse(),"Invalid House");
         houses[houseAddress].isActive = true;
         houses[houseAddress].owner = houseContract.owner();
         emit TrackerChanged(houseAddress,Action.added);
@@ -150,11 +150,11 @@ contract Tracker is SafeMath, Owned {
      * Updates a house 
      */
     function updateHouse(address newHouseAddress,address oldHouseAddress) public {
-        require(!trackerData.managed || msg.sender==owner);
-        require(houses[oldHouseAddress].owner==msg.sender || houses[oldHouseAddress].owner==oldHouseAddress); 
-        require(!houses[newHouseAddress].isActive);  
+        require(!trackerData.managed || msg.sender==owner,"Tracker is managed");
+        require(houses[oldHouseAddress].owner==msg.sender || houses[oldHouseAddress].owner==oldHouseAddress,"Caller isn't the owner of old House");
+        require(!houses[newHouseAddress].isActive,"There is a new version of House already registered");  
         HouseContract houseContract = HouseContract(newHouseAddress);
-        require(houseContract.isHouse());
+        require(houseContract.isHouse(),"Invalid House");
         houses[oldHouseAddress].isActive = false;
         houses[newHouseAddress].isActive = true;
         houses[newHouseAddress].owner = houseContract.owner();
@@ -171,8 +171,8 @@ contract Tracker is SafeMath, Owned {
      * Removes a house
      */
     function removeHouse(address houseAddress) public {
-        require(!trackerData.managed || msg.sender==owner);
-        require(houses[houseAddress].owner==msg.sender);  
+        require(!trackerData.managed || msg.sender==owner,"Tracker is managed");
+        require(houses[houseAddress].owner==msg.sender,"Caller isn't the owner of House");  
         houses[houseAddress].isActive = false;
         emit TrackerChanged(houseAddress,Action.updated);
     }
@@ -183,7 +183,7 @@ contract Tracker is SafeMath, Owned {
      * UpVotes a house
      */
     function upVoteHouse(address houseAddress) public {
-        require(HouseContract(houseAddress).isPlayer(msg.sender));
+        require(HouseContract(houseAddress).isPlayer(msg.sender),"Caller hasn't placed any bet");
         houses[houseAddress].upVotes += 1;
         emit TrackerChanged(houseAddress,Action.updated);
     }
@@ -194,7 +194,7 @@ contract Tracker is SafeMath, Owned {
      * DownVotes a house
      */
     function downVoteHouse(address houseAddress) public {
-        require(HouseContract(houseAddress).isPlayer(msg.sender));
+        require(HouseContract(houseAddress).isPlayer(msg.sender),"Caller hasn't placed any bet");
         houses[houseAddress].downVotes += 1;
         emit TrackerChanged(houseAddress,Action.updated);
     }    
