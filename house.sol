@@ -217,7 +217,7 @@ contract House is SafeMath, Owned {
         houseData.housePercentage = housePercentage;
         houseData.oraclePercentage = oraclePercentage;
         houseData.oracleAddress = oracleAddress;
-        houseData.newBetsPaused = false;
+        houseData.newBetsPaused = true;
         houseData.version = version;
         uint ownersTotal = 0;
         for (uint i = 0; i<ownerAddress.length; i++) {
