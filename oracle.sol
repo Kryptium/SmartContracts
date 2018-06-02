@@ -357,6 +357,12 @@ contract Oracle is SafeMath, Owned {
         return (eventOutcome[eventId][outputId]);
     }
 
+     /**
+     * Get event outcome is Set
+     */
+    function getEventOutcomeIsSet(uint eventId, uint outputId) public view returns(bool isSet) {
+        return (eventOutputs[eventId][outputId].isSet);
+    }
 
 
     /**
