@@ -527,6 +527,14 @@ contract House is SafeMath, Owned {
         balance[msg.sender] = add(balance[msg.sender],msg.value);
     }
 
+
+    /**
+    * Checks if a player has betting activity on House 
+    */
+    function isPlayer(address playerAddress) public view returns(bool) {
+        return (totalPlayerBets[playerAddress] > 0);
+    }
+
     function updateShortMessage(string shortMessage) onlyOwner public {
         houseData.shortMessage = shortMessage;
         emit HousePropertiesUpdated();
@@ -574,25 +582,5 @@ contract House is SafeMath, Owned {
         houseCoins = sub(houseCoins,amount);
         destinationAddress.transfer(amount);
     }
-
-    // function updateBetOptionalParameters(uint id, uint256 wager, uint closingDateTime, uint256 minimumWager, uint256 maximumWager, uint256 payoutRate, string placedBy) public {
-    //     require(msg.sender==bets[id].placedBy);
-    //     if (closingDateTime>0) {
-    //         bets[id].closingDateTime = closingDateTime;
-    //     }        
-    //     if (minimumWager != 0) {
-    //         bets[id].minimumWager = minimumWager;
-    //     }
-    //     if (maximumWager != 0) {
-    //         bets[id].maximumWager = maximumWager;
-    //     }
-    //     if (payoutRate != 0) {
-    //         bets[id].payoutRate = payoutRate;
-    //     }
-        
-    //     bets[id].placedByNickName = placedBy;
-    //     bets[id].updatedDateTime = now;             
-    // }
-
 
 }

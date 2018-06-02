@@ -59,7 +59,8 @@ House smart contract interface
 */
 interface HouseContract {
      function owner() external view returns (address); 
-     function isHouse() external view returns (bool); 
+     function isHouse() external view returns (bool);
+     function isPlayer(address playerAddress) external view returns(bool);
 }
 
 /*
@@ -182,6 +183,7 @@ contract Tracker is SafeMath, Owned {
      * UpVotes a house
      */
     function upVoteHouse(address houseAddress) public {
+        require(HouseContract(houseAddress).isPlayer(msg.sender));
         houses[houseAddress].upVotes += 1;
         emit TrackerChanged(houseAddress,Action.updated);
     }
@@ -192,6 +194,7 @@ contract Tracker is SafeMath, Owned {
      * DownVotes a house
      */
     function downVoteHouse(address houseAddress) public {
+        require(HouseContract(houseAddress).isPlayer(msg.sender));
         houses[houseAddress].downVotes += 1;
         emit TrackerChanged(houseAddress,Action.updated);
     }    
