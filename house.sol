@@ -109,13 +109,13 @@ contract House is SafeMath, Owned {
         string  name;
         string  creatorName;
         string  countryISO; 
-        string shortMessage;
         address oracleAddress;
         address oldOracleAddress;       
         bool  newBetsPaused;
         uint  housePercentage;
         uint oraclePercentage;   
-        uint version;      
+        uint version;
+        string shortMessage;              
     } 
 
     address public _newHouseAddress;
@@ -212,8 +212,9 @@ contract House is SafeMath, Owned {
         houseData.creatorName = houseCreatorName;
         houseData.countryISO = houseCountryISO;
         houseData.housePercentage = housePercentage;
-        houseData.oraclePercentage = oraclePercentage;
+        houseData.oraclePercentage = oraclePercentage; 
         houseData.oracleAddress = oracleAddress;
+        houseData.shortMessage = "";
         houseData.newBetsPaused = true;
         houseData.version = version;
         uint ownersTotal = 0;
@@ -509,7 +510,11 @@ contract House is SafeMath, Owned {
                     oracleTotalFees[bets[betId].oracleAddress] += oracleEdgeAmount[bets[betId].oracleAddress];
                     oracleEdgeAmount[bets[betId].oracleAddress] = 0;
                 }
-                playerOutputFromBet[msg.sender][betId] = mulByFraction(betTotalAmount[betId], playerBetForecastWager[msg.sender][betId][bets[betId].outcome], betForcastTotalAmount[betId][bets[betId].outcome]);
+                if (betForcastTotalAmount[betId][bets[betId].outcome]>0) {
+                    playerOutputFromBet[msg.sender][betId] = mulByFraction(betTotalAmount[betId], playerBetForecastWager[msg.sender][betId][bets[betId].outcome], betForcastTotalAmount[betId][bets[betId].outcome]);            
+                } else {
+                    playerOutputFromBet[msg.sender][betId] = playerBetTotalAmount[msg.sender][betId] - mulByFraction(playerBetTotalAmount[msg.sender][betId],1000 - houseEdgeAmount, 1000) - mulByFraction(playerBetTotalAmount[msg.sender][betId],1000 - oracleEdgeAmount[bets[betId].oracleAddress], 1000);
+                }
                 if (playerOutputFromBet[msg.sender][betId] > 0) {
                     betEvent = BetEvent.settleWinnedBet;
                 }
