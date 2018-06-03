@@ -232,7 +232,6 @@ contract Oracle is SafeMath, Owned {
         events[id].categoryId = categoryId;
         events[id].closeDateTime = closeDateTime;
         events[id].freezeDateTime = freezeDateTime;
-        eventOutputs[id][events[id].totalAvailableOutputs].isSet = true;
         eventOutputs[id][events[id].totalAvailableOutputs].title = outputTitle;
         eventOutputs[id][events[id].totalAvailableOutputs].possibleResultsCount = _possibleResults.length;
         eventOutputs[id][events[id].totalAvailableOutputs].eventOutputType = eventOutputType;
@@ -249,7 +248,6 @@ contract Oracle is SafeMath, Owned {
      */
     function addUpcomingEventOutput(uint id,  string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults,uint decimals) onlyOwner public {
         require(events[id].closeDateTime >= now,"Close time should be greater than now");
-        eventOutputs[id][events[id].totalAvailableOutputs].isSet = true;
         eventOutputs[id][events[id].totalAvailableOutputs].title = outputTitle;
         eventOutputs[id][events[id].totalAvailableOutputs].possibleResultsCount = _possibleResults.length;
         eventOutputs[id][events[id].totalAvailableOutputs].eventOutputType = eventOutputType;
