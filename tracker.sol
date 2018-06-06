@@ -183,7 +183,7 @@ contract Tracker is SafeMath, Owned {
      * UpVotes a house
      */
     function upVoteHouse(address houseAddress) public {
-        require(HouseContract(houseAddress).isPlayer(msg.sender),"Caller hasn't placed any bet");
+        //require(HouseContract(houseAddress).isPlayer(msg.sender),"Caller hasn't placed any bet");
         houses[houseAddress].upVotes += 1;
         emit TrackerChanged(houseAddress,Action.updated);
     }
@@ -194,7 +194,7 @@ contract Tracker is SafeMath, Owned {
      * DownVotes a house
      */
     function downVoteHouse(address houseAddress) public {
-        require(HouseContract(houseAddress).isPlayer(msg.sender),"Caller hasn't placed any bet");
+        //require(HouseContract(houseAddress).isPlayer(msg.sender),"Caller hasn't placed any bet");
         houses[houseAddress].downVotes += 1;
         emit TrackerChanged(houseAddress,Action.updated);
     }    

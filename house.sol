@@ -54,22 +54,24 @@ contract Owned {
 }
 
 /*
-House smart contract interface
+Oracle smart contract interface
 */
 interface OracleContract {
-     function getEventForHousePlaceBet(uint id) external view returns (uint closeDateTime, uint freezeDateTime, bool isCancelled); 
-     function getEventOutcomeIsSet(uint eventId, uint outputId) external view returns (bool isSet);
-     function getEventOutcome(uint eventId, uint outputId) external view returns (uint outcome); 
-     function getEventOutcomeNumeric(uint eventId, uint outputId) external view returns(uint256 outcome1, uint256 outcome2,uint256 outcome3,uint256 outcome4, uint256 outcome5, uint256 outcome6);
+    function owner() external view returns (address);
+    function getEventForHousePlaceBet(uint id) external view returns (uint closeDateTime, uint freezeDateTime, bool isCancelled); 
+    function getEventOutcomeIsSet(uint eventId, uint outputId) external view returns (bool isSet);
+    function getEventOutcome(uint eventId, uint outputId) external view returns (uint outcome); 
+    function getEventOutcomeNumeric(uint eventId, uint outputId) external view returns(uint256 outcome1, uint256 outcome2,uint256 outcome3,uint256 outcome4, uint256 outcome5, uint256 outcome6);
 }
 
 /*
 House smart contract interface
 */
 interface HouseContract {
-     function owner() external view returns (address); 
-     function isHouse() external view returns (bool); 
+    function owner() external view returns (address); 
+    function isHouse() external view returns (bool); 
 }
+
 
 
 /*
@@ -506,7 +508,8 @@ contract House is SafeMath, Owned {
                     houseEdgeAmount = 0; 
                 }   
                 if (oracleEdgeAmount[bets[betId].oracleAddress] > 0) {
-                    balance[bets[betId].oracleAddress] += oracleEdgeAmount[bets[betId].oracleAddress];
+                    address oracleOwner = HouseContract(bets[betId].oracleAddress).owner();
+                    balance[oracleOwner] += oracleEdgeAmount[bets[betId].oracleAddress];
                     oracleTotalFees[bets[betId].oracleAddress] += oracleEdgeAmount[bets[betId].oracleAddress];
                     oracleEdgeAmount[bets[betId].oracleAddress] = 0;
                 }
