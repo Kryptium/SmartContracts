@@ -124,7 +124,7 @@ contract House is SafeMath, Owned {
 
     HouseData public houseData;  
 
-    // This creates an array with all events
+    // This creates an array with all bets
     mapping (uint => Bet) public bets;
 
     //Total bets
@@ -145,7 +145,7 @@ contract House is SafeMath, Owned {
     //Total amount placed on a bet forecast
     mapping (uint => mapping (uint => uint256)) public betForcastTotalAmount;    
 
-    //Player bet amount of a Bet
+    //Player bet total amount on a Bet
     mapping (address => mapping (uint => uint256)) public playerBetTotalAmount;
 
     //Player forecast for an output of a Bet
@@ -180,11 +180,14 @@ contract House is SafeMath, Owned {
     //The array of house owners
     address[] public owners;
 
-    //The total remaining House amount collected from fees
-    uint256 public houseEdgeAmount;
+    //The House and Oracle Edge has been paid
+    mapping (uint => bool) public housePaid;
 
-    //The total remaining Oracle amount collected from fees
-    mapping (address => uint256) public oracleEdgeAmount;
+    //The total remaining House amount collected from fees for Bet
+    mapping (uint => uint256) public houseEdgeAmountForBet;
+
+    //The total remaining Oracle amount collected from fees for Bet
+    mapping (uint => uint256) public oracleEdgeAmountForBet;
 
     //The total House fees
     uint256 public houseTotalFees;
@@ -198,7 +201,7 @@ contract House is SafeMath, Owned {
     // Notifies clients that a house data has changed
     event HousePropertiesUpdated();    
 
-    event BetPlacedOrModified(uint id, address sender, BetEvent betEvent, uint256);
+    event BetPlacedOrModified(uint id, address sender, BetEvent betEvent, uint256 amount, uint forecast);
 
 
     /**
@@ -329,10 +332,10 @@ contract House is SafeMath, Owned {
         totalBets += 1;
         totalAmountOnBets += wager;
         if (houseData.housePercentage>0) {
-            houseEdgeAmount += mulByFraction(wager, houseData.housePercentage, 1000);
+            houseEdgeAmountForBet[betNextId] += mulByFraction(wager, houseData.housePercentage, 1000);
         }
         if (houseData.oraclePercentage>0) {
-            oracleEdgeAmount[houseData.oracleAddress] += mulByFraction(wager, houseData.oraclePercentage, 1000);
+            oracleEdgeAmountForBet[betNextId] += mulByFraction(wager, houseData.oraclePercentage, 1000);
         }
 
         balance[msg.sender] -= wager;
@@ -350,7 +353,7 @@ contract House is SafeMath, Owned {
 
         totalPlayerBetsAmount[msg.sender] += wager;
 
-        emit BetPlacedOrModified(betNextId, msg.sender, BetEvent.placeBet, wager);
+        emit BetPlacedOrModified(betNextId, msg.sender, BetEvent.placeBet, wager, forecast);
     }  
 
     /*
@@ -369,10 +372,10 @@ contract House is SafeMath, Owned {
             betTotalAmount[betId] += wager;
             totalAmountOnBets += wager;
             if (houseData.housePercentage>0) {
-                houseEdgeAmount += mulByFraction(wager, houseData.housePercentage, 1000);
+                houseEdgeAmountForBet[betId] += mulByFraction(wager, houseData.housePercentage, 1000);
             }
             if (houseData.oraclePercentage>0) {
-                oracleEdgeAmount[bets[betId].oracleAddress] += mulByFraction(wager, houseData.oraclePercentage, 1000);
+                oracleEdgeAmountForBet[betId] += mulByFraction(wager, houseData.oraclePercentage, 1000);
             }
 
             balance[msg.sender] -= wager;
@@ -390,7 +393,7 @@ contract House is SafeMath, Owned {
 
             totalPlayerBetsAmount[msg.sender] += wager;
 
-            emit BetPlacedOrModified(betId, msg.sender, BetEvent.callBet, wager);
+            emit BetPlacedOrModified(betId, msg.sender, BetEvent.callBet, wager, forecast);
             return true;
         } else {
             return false; 
@@ -413,10 +416,10 @@ contract House is SafeMath, Owned {
             betTotalAmount[betId] += additionalWager;
             totalAmountOnBets += additionalWager;
             if (houseData.housePercentage>0) {
-                houseEdgeAmount += mulByFraction(additionalWager, houseData.housePercentage, 1000);
+                houseEdgeAmountForBet[betId] += mulByFraction(additionalWager, houseData.housePercentage, 1000);
             }
             if (houseData.oraclePercentage>0) {
-                oracleEdgeAmount[bets[betId].oracleAddress] += mulByFraction(additionalWager, houseData.oraclePercentage, 1000);
+                oracleEdgeAmountForBet[betId] += mulByFraction(additionalWager, houseData.oraclePercentage, 1000);
             }
 
             balance[msg.sender] -= additionalWager;
@@ -429,7 +432,7 @@ contract House is SafeMath, Owned {
 
             totalPlayerBetsAmount[msg.sender] += additionalWager;
 
-            emit BetPlacedOrModified(betId, msg.sender, BetEvent.increaseWager, wager);
+            emit BetPlacedOrModified(betId, msg.sender, BetEvent.increaseWager, wager, forecast);
             return true;
         } else {
             return false; 
@@ -451,13 +454,13 @@ contract House is SafeMath, Owned {
             betTotalAmount[betId] -= wager;
             totalBets -= 1;
             totalAmountOnBets -= wager;
-            houseEdgeAmount = 0;
-            oracleEdgeAmount[bets[betId].oracleAddress] = 0;
+            houseEdgeAmountForBet[betId] = 0;
+            oracleEdgeAmountForBet[betId] = 0;
             balance[msg.sender] += wager;
             playerBetTotalAmount[msg.sender][betId] -= wager;
             totalPlayerBets[msg.sender] -= 1;
             totalPlayerBetsAmount[msg.sender] -= wager;
-            emit BetPlacedOrModified(betId, msg.sender, BetEvent.removeBet, wager);
+            emit BetPlacedOrModified(betId, msg.sender, BetEvent.removeBet, wager,0);
             return true;
         } else {
             return false;
@@ -478,7 +481,7 @@ contract House is SafeMath, Owned {
             if (betRefutedAmount[betId] >= betTotalAmount[betId]) {
                 bets[betId].isCancelled;   
             }
-            emit BetPlacedOrModified(betId, msg.sender, BetEvent.refuteBet, playerBetTotalAmount[msg.sender][betId]);
+            emit BetPlacedOrModified(betId, msg.sender, BetEvent.refuteBet, playerBetTotalAmount[msg.sender][betId],0);
             return true;
         } else {
             return false;
@@ -496,35 +499,34 @@ contract House is SafeMath, Owned {
             BetEvent betEvent;
             if (bets[betId].isCancelled) {
                 betEvent = BetEvent.settleCancelledBet;
-                houseEdgeAmount = 0;
-                oracleEdgeAmount[bets[betId].oracleAddress] = 0;
+                houseEdgeAmountForBet[betId] = 0;
+                oracleEdgeAmountForBet[betId] = 0;
                 playerOutputFromBet[msg.sender][betId] = playerBetTotalAmount[msg.sender][betId];            
             } else {
-                if (houseEdgeAmount > 0) {
+                if (!housePaid[betId] && houseEdgeAmountForBet[betId] > 0) {
                     for (uint i = 0; i<owners.length; i++) {
-                        balance[owners[i]] += mulByFraction(houseEdgeAmount, ownerPerc[owners[i]], 1000);
+                        balance[owners[i]] += mulByFraction(houseEdgeAmountForBet[betId], ownerPerc[owners[i]], 1000);
                     }
-                    houseTotalFees += houseEdgeAmount;
-                    houseEdgeAmount = 0; 
+                    houseTotalFees += houseEdgeAmountForBet[betId];
                 }   
-                if (oracleEdgeAmount[bets[betId].oracleAddress] > 0) {
+                if (!housePaid[betId] && oracleEdgeAmountForBet[betId] > 0) {
                     address oracleOwner = HouseContract(bets[betId].oracleAddress).owner();
-                    balance[oracleOwner] += oracleEdgeAmount[bets[betId].oracleAddress];
-                    oracleTotalFees[bets[betId].oracleAddress] += oracleEdgeAmount[bets[betId].oracleAddress];
-                    oracleEdgeAmount[bets[betId].oracleAddress] = 0;
+                    balance[oracleOwner] += oracleEdgeAmountForBet[betId];
+                    oracleTotalFees[bets[betId].oracleAddress] += oracleEdgeAmountForBet[betId];
                 }
                 if (betForcastTotalAmount[betId][bets[betId].outcome]>0) {
                     playerOutputFromBet[msg.sender][betId] = mulByFraction(betTotalAmount[betId], playerBetForecastWager[msg.sender][betId][bets[betId].outcome], betForcastTotalAmount[betId][bets[betId].outcome]);            
                 } else {
-                    playerOutputFromBet[msg.sender][betId] = playerBetTotalAmount[msg.sender][betId] - mulByFraction(playerBetTotalAmount[msg.sender][betId],1000 - houseEdgeAmount, 1000) - mulByFraction(playerBetTotalAmount[msg.sender][betId],1000 - oracleEdgeAmount[bets[betId].oracleAddress], 1000);
+                    playerOutputFromBet[msg.sender][betId] = playerBetTotalAmount[msg.sender][betId] - mulByFraction(playerBetTotalAmount[msg.sender][betId],1000 - houseEdgeAmountForBet[betId], 1000) - mulByFraction(playerBetTotalAmount[msg.sender][betId],1000 - oracleEdgeAmountForBet[betId], 1000);
                 }
                 if (playerOutputFromBet[msg.sender][betId] > 0) {
                     betEvent = BetEvent.settleWinnedBet;
                 }
             }
+            housePaid[betId] = true;
             PlayerBetSettled[msg.sender][betId] = true;
             balance[msg.sender] += playerOutputFromBet[msg.sender][betId];
-            emit BetPlacedOrModified(betId, msg.sender, betEvent, playerOutputFromBet[msg.sender][betId]);
+            emit BetPlacedOrModified(betId, msg.sender, betEvent, playerOutputFromBet[msg.sender][betId],0);
             return true;
         } else {
             return false;
