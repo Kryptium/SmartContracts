@@ -215,11 +215,9 @@ contract Oracle is SafeMath, Owned {
 
     /**
      * Adds an Upcoming Event
-     * Remix sample call "OSFP-PAO", 1521755089, 1521752289, 0, 0,[{"title":"LALA","eventOutputType":0,"possibleResults":["HOME","DRAW","AWAY"]}]
-     * Remix sample call "AEK-PAOK", 1519431000, 1519431600, 1, 0
      */
     function addUpcomingEvent(string title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId, string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults,uint decimals) onlyOwner public {        
-        uint closeDateTime = startDateTime - oracleData.closeEventOutcomeTime * 1 minutes;
+        uint closeDateTime = startDateTime - oracleData.closeBeforeStartTime * 1 minutes;
         uint freezeDateTime = endDateTime + oracleData.closeEventOutcomeTime * 1 minutes;
         require(closeDateTime >= now,"Close time should be greater than now");
         eventNextId += 1;
@@ -264,7 +262,7 @@ contract Oracle is SafeMath, Owned {
      * Remix sample call 1, "AEK-PAOK", 1519456520, 1519456700, 1, 0
      */
     function updateUpcomingEvent(uint id, string title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId) onlyOwner public {
-        uint closeDateTime = startDateTime - oracleData.closeEventOutcomeTime * 1 minutes;
+        uint closeDateTime = startDateTime - oracleData.closeBeforeStartTime * 1 minutes;
         uint freezeDateTime = endDateTime + oracleData.closeEventOutcomeTime * 1 minutes;
         events[id].title = title;
         events[id].startDateTime = startDateTime;

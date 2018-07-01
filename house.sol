@@ -400,7 +400,7 @@ contract House is SafeMath, Owned {
     function increaseWager(uint betId, uint forecast, uint256 additionalWager) public returns (bool) {
         require(additionalWager>0,"Increase wager amount should be greater than zero");
         require(balance[msg.sender]>=additionalWager,"Not enough balance");
-        require(playerBetForecastWager[msg.sender][betId][forecast] > 0,"Haven't placed any bet");
+        require(playerBetForecastWager[msg.sender][betId][forecast] > 0,"Haven't placed any bet for this forecast. Use callBet instead");
         require(bets[betId].betType != BetType.headtohead || betTotalBets[betId] == 1,"Head to head bet has been already called");
         uint256 wager = playerBetForecastWager[msg.sender][betId][forecast] + additionalWager;
         require(bets[betId].maximumWager==0 || wager<=bets[betId].maximumWager,"The updated wager is higher then the maximum accepted");
