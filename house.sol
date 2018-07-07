@@ -425,7 +425,7 @@ contract House is SafeMath, Owned {
 
             totalPlayerBetsAmount[msg.sender] += additionalWager;
 
-            emit BetPlacedOrModified(betId, msg.sender, BetEvent.increaseWager, wager, forecast);
+            emit BetPlacedOrModified(betId, msg.sender, BetEvent.increaseWager, wager, additionalWager);
             return true;
         } else {
             return false; 
