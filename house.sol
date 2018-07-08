@@ -486,7 +486,6 @@ contract House is SafeMath, Owned {
      */
     function calculateBetOutcome(uint betId, bool isCancelled, uint forecast) public view returns (uint256 betOutcome) {
         require(playerBetTotalAmount[msg.sender][betId]>0, "Caller hasn't placed any bet");
-        require(!playerBetSettled[msg.sender][betId],"Already settled");
         if (isCancelled) {
             return playerBetTotalAmount[msg.sender][betId];            
         } else {
