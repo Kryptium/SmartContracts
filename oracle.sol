@@ -259,7 +259,6 @@ contract Oracle is SafeMath, Owned {
 
     /**
      * Updates an Upcoming Event
-     * Remix sample call 1, "AEK-PAOK", 1519456520, 1519456700, 1, 0
      */
     function updateUpcomingEvent(uint id, string title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId) onlyOwner public {
         uint closeDateTime = startDateTime - oracleData.closeBeforeStartTime * 1 minutes;
