@@ -495,7 +495,7 @@ contract House is SafeMath, Owned {
         require(!playerBetSettled[msg.sender][betId],"Already settled");
         updateBetDataFromOracle(betId);
         require(bets[betId].isCancelled || bets[betId].isOutcomeSet,"Bet should be cancelled or has an outcome");
-        require(bets[betId].freezeDateTime <= now,"Bet payements are freezed");
+        require(bets[betId].freezeDateTime <= now,"Bet payments are freezed");
         BetEvent betEvent;
         if (bets[betId].isCancelled) {
             betEvent = BetEvent.settleCancelledBet;
