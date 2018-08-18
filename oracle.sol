@@ -191,17 +191,20 @@ contract Oracle is SafeMath, Owned {
         emit OraclePropertiesUpdated();
     }      
 
+
     /**
-     * Adds an Oracle Subcategories
+     * Adds an Oracle Subcategory
      */
-    function setSubcategory(uint categoryId, string name,string country) onlyOwner public {
-        subcategoryNextId += 1;
-        uint id = subcategoryNextId;
+    function setSubcategory(uint id, uint categoryId, string name,string country,bool hidden) onlyOwner public {
+        if (id==0) {
+            subcategoryNextId += 1;
+            id = subcategoryNextId;
+        }
         subcategories[id].id = id;
         subcategories[id].categoryId = categoryId;
         subcategories[id].name = name;
         subcategories[id].country = country;
-        subcategories[id].hidden = false;
+        subcategories[id].hidden = hidden;
         emit OracleSubcategoryAdded(id);
     }  
 
@@ -213,15 +216,19 @@ contract Oracle is SafeMath, Owned {
         emit OracleSubcategoryUpdated(id);
     }   
 
+
     /**
      * Adds an Upcoming Event
      */
-    function addUpcomingEvent(string title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId, string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults,uint decimals) onlyOwner public {        
+    function addUpcomingEvent(uint id, string title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId, string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults,uint decimals) onlyOwner public {        
+        if (id==0) {
+            eventNextId += 1;
+            id = eventNextId;
+        }
+        
         uint closeDateTime = startDateTime - oracleData.closeBeforeStartTime * 1 minutes;
         uint freezeDateTime = endDateTime + oracleData.closeEventOutcomeTime * 1 minutes;
         require(closeDateTime >= now,"Close time should be greater than now");
-        eventNextId += 1;
-        uint id = eventNextId;
         events[id].id = id;
         events[id].title = title;
         events[id].startDateTime = startDateTime;
@@ -230,21 +237,21 @@ contract Oracle is SafeMath, Owned {
         events[id].categoryId = categoryId;
         events[id].closeDateTime = closeDateTime;
         events[id].freezeDateTime = freezeDateTime;
-        eventOutputs[id][events[id].totalAvailableOutputs].title = outputTitle;
-        eventOutputs[id][events[id].totalAvailableOutputs].possibleResultsCount = _possibleResults.length;
-        eventOutputs[id][events[id].totalAvailableOutputs].eventOutputType = eventOutputType;
-        eventOutputs[id][events[id].totalAvailableOutputs].decimals = decimals;
+        eventOutputs[id][0].title = outputTitle;
+        eventOutputs[id][0].possibleResultsCount = _possibleResults.length;
+        eventOutputs[id][0].eventOutputType = eventOutputType;
+        eventOutputs[id][0].decimals = decimals;
         for (uint j = 0; j<_possibleResults.length; j++) {
-            eventOutputPossibleResults[id][events[id].totalAvailableOutputs][j] = _possibleResults[j];            
+            eventOutputPossibleResults[id][0][j] = _possibleResults[j];            
         }
-        events[id].totalAvailableOutputs += 1;
+        events[id].totalAvailableOutputs = 1;
         emit UpcomingEventUpdated(id);
     }  
 
     /**
      * Adds a new output to existing an Upcoming Event
      */
-    function addUpcomingEventOutput(uint id,  string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults,uint decimals) onlyOwner public {
+    function addUpcomingEventOutput(uint id, string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults,uint decimals) onlyOwner public {
         require(events[id].closeDateTime >= now,"Close time should be greater than now");
         eventOutputs[id][events[id].totalAvailableOutputs].title = outputTitle;
         eventOutputs[id][events[id].totalAvailableOutputs].possibleResultsCount = _possibleResults.length;
