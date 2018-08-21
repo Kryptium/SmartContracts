@@ -150,7 +150,7 @@ contract Oracle is SafeMath, Owned {
     event OracleSubcategoryUpdated(uint id);    
     
     // Notifies clients that an Oracle Event has changed
-    event UpcomingEventUpdated(uint id);
+    event UpcomingEventUpdated(uint id,uint closeDateTime);
 
 
 
@@ -245,7 +245,7 @@ contract Oracle is SafeMath, Owned {
             eventOutputPossibleResults[id][0][j] = _possibleResults[j];            
         }
         events[id].totalAvailableOutputs = 1;
-        emit UpcomingEventUpdated(id);
+        emit UpcomingEventUpdated(id,closeDateTime);
     }  
 
     /**
@@ -261,7 +261,7 @@ contract Oracle is SafeMath, Owned {
             eventOutputPossibleResults[id][events[id].totalAvailableOutputs][j] = _possibleResults[j];
         }  
         events[id].totalAvailableOutputs += 1;             
-        emit UpcomingEventUpdated(id);
+        emit UpcomingEventUpdated(id,events[id].closeDateTime);
     }
 
     /**
@@ -280,7 +280,7 @@ contract Oracle is SafeMath, Owned {
         if (closeDateTime < now) {
             events[id].isCancelled = true;
         }  
-        emit UpcomingEventUpdated(id); 
+        emit UpcomingEventUpdated(id,closeDateTime); 
     }     
 
     /**
@@ -289,7 +289,7 @@ contract Oracle is SafeMath, Owned {
     function cancelUpcomingEvent(uint id) onlyOwner public {
         require(events[id].freezeDateTime >= now,"Freeze time should be greater than now");
         events[id].isCancelled = true;
-        emit UpcomingEventUpdated(id); 
+        emit UpcomingEventUpdated(id,events[id].closeDateTime); 
     }  
 
 
@@ -311,7 +311,7 @@ contract Oracle is SafeMath, Owned {
         if (setEventAnnouncement) {
             events[eventId].announcement = announcement;
         }     
-        emit UpcomingEventUpdated(eventId); 
+        emit UpcomingEventUpdated(eventId,events[eventId].closeDateTime); 
     }  
 
      /**
@@ -327,7 +327,7 @@ contract Oracle is SafeMath, Owned {
         if (setEventAnnouncement) {
             events[eventId].announcement = announcement;
         } 
-        emit UpcomingEventUpdated(eventId); 
+        emit UpcomingEventUpdated(eventId,events[eventId].closeDateTime); 
     } 
 
 
@@ -341,7 +341,7 @@ contract Oracle is SafeMath, Owned {
         } else {
             events[id].freezeDateTime = now;
         }
-        emit UpcomingEventUpdated(id);
+        emit UpcomingEventUpdated(id,events[id].closeDateTime);
     } 
 
     /**
