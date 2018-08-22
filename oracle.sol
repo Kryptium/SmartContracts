@@ -244,7 +244,9 @@ contract Oracle is SafeMath, Owned {
         for (uint j = 0; j<_possibleResults.length; j++) {
             eventOutputPossibleResults[id][0][j] = _possibleResults[j];            
         }
-        events[id].totalAvailableOutputs = 1;
+        if (events[id].totalAvailableOutputs < 1) {
+            events[id].totalAvailableOutputs = 1;
+        }      
         emit UpcomingEventUpdated(id,closeDateTime);
     }  
 
