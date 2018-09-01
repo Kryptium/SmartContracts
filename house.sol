@@ -201,6 +201,9 @@ contract House is SafeMath, Owned {
     event BetPlacedOrModified(uint id, address sender, BetEvent betEvent, uint256 amount, uint forecast);
 
 
+    event transfer(address indexed wallet, uint256 amount,bool inbound);
+
+
     /**
      * Constructor function
      *
@@ -532,6 +535,7 @@ contract House is SafeMath, Owned {
 
     function() public payable {
         balance[msg.sender] = add(balance[msg.sender],msg.value);
+        emit transfer(msg.sender,msg.value,true);
     }
 
 
@@ -579,6 +583,7 @@ contract House is SafeMath, Owned {
         require(balance[msg.sender]>=amount,"Insufficient balance");
         balance[msg.sender] = sub(balance[msg.sender],amount);
         msg.sender.transfer(amount);
+        emit transfer(msg.sender,amount,false);
     }
 
     function withdrawToAddress(address destinationAddress,uint256 amount) public {
@@ -586,6 +591,7 @@ contract House is SafeMath, Owned {
         require(balance[msg.sender]>=amount,"Insufficient balance");
         balance[msg.sender] = sub(balance[msg.sender],amount);
         destinationAddress.transfer(amount);
+        emit transfer(msg.sender,amount,false);
     }
 
 }
