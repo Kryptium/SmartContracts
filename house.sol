@@ -1,4 +1,4 @@
-pragma solidity "0.4.24";
+pragma solidity ^0.4.24;
 
 /**
  * @title SafeMath
@@ -364,9 +364,9 @@ contract House is SafeMath, Owned {
         require(wager>=bets[betId].minimumWager,"Wager is lower than the minimum accepted");
         require(bets[betId].maximumWager==0 || wager<=bets[betId].maximumWager,"Wager is higher then the maximum accepted");
         updateBetDataFromOracle(betId);
-        require(!bets[betNextId].isCancelled,"Bet has been cancelled");
-        require(!bets[betNextId].isOutcomeSet,"Event has already an outcome");
-        require(bets[betNextId].closeDateTime >= now,"Close time has passed");
+        require(!bets[betId].isCancelled,"Bet has been cancelled");
+        require(!bets[betId].isOutcomeSet,"Event has already an outcome");
+        require(bets[betId].closeDateTime >= now,"Close time has passed");
         betTotalBets[betId] += 1;
         betTotalAmount[betId] += wager;
         totalAmountOnBets += wager;
@@ -404,9 +404,9 @@ contract House is SafeMath, Owned {
         uint256 wager = playerBetForecastWager[msg.sender][betId][forecast] + additionalWager;
         require(bets[betId].maximumWager==0 || wager<=bets[betId].maximumWager,"The updated wager is higher then the maximum accepted");
         updateBetDataFromOracle(betId);
-        require(!bets[betNextId].isCancelled,"Bet has been cancelled");
-        require(!bets[betNextId].isOutcomeSet,"Event has already an outcome");
-        require(bets[betNextId].closeDateTime >= now,"Close time has passed");
+        require(!bets[betId].isCancelled,"Bet has been cancelled");
+        require(!bets[betId].isOutcomeSet,"Event has already an outcome");
+        require(bets[betId].closeDateTime >= now,"Close time has passed");
         betTotalAmount[betId] += additionalWager;
         totalAmountOnBets += additionalWager;
         if (houseData.housePercentage>0) {
@@ -436,9 +436,9 @@ contract House is SafeMath, Owned {
         require(bets[betId].createdBy == msg.sender,"Caller and player created don't match");
         require(betTotalBets[betId]==1,"The bet has been called by other player");
         updateBetDataFromOracle(betId);  
-        require(!bets[betNextId].isCancelled,"Bet has been cancelled");
-        require(!bets[betNextId].isOutcomeSet,"Event has already an outcome");
-        require(bets[betNextId].closeDateTime >= now,"Close time has passed");
+        require(!bets[betId].isCancelled,"Bet has been cancelled");
+        require(!bets[betId].isOutcomeSet,"Event has already an outcome");
+        require(bets[betId].closeDateTime >= now,"Close time has passed");
         bets[betId].isCancelled = true;
         uint256 wager = betTotalAmount[betId];
         betTotalBets[betId] -= 1;
