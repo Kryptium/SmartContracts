@@ -95,11 +95,11 @@ contract Tracker is SafeMath, Owned {
     // This creates an array with all balances
     mapping (address => House) public houses;
 
-    // Player has upvoted
-    mapping (address => bool) public playerUpvoted;
+    // Player has upvoted a House
+    mapping (address => mapping (address => bool)) public playerUpvoted;
 
-    // Player has downvoted
-    mapping (address => bool) public playerDownvoted;
+    // Player has downvoted a House
+    mapping (address => mapping (address => bool)) public playerDownvoted;
 
     // Notifies clients that a house has insterted/altered
     event TrackerChanged(address indexed  newHouseAddress, Action action);
@@ -190,8 +190,8 @@ contract Tracker is SafeMath, Owned {
      */
     function upVoteHouse(address houseAddress) public {
         require(HouseContract(houseAddress).isPlayer(msg.sender),"Caller hasn't placed any bet");
-        require(!playerUpvoted[msg.sender],"Has already Upvoted");
-        playerUpvoted[msg.sender] = true;
+        require(!playerUpvoted[msg.sender][houseAddress],"Has already Upvoted");
+        playerUpvoted[msg.sender][houseAddress] = true;
         houses[houseAddress].upVotes += 1;
         emit TrackerChanged(houseAddress,Action.updated);
     }
@@ -203,8 +203,8 @@ contract Tracker is SafeMath, Owned {
      */
     function downVoteHouse(address houseAddress) public {
         require(HouseContract(houseAddress).isPlayer(msg.sender),"Caller hasn't placed any bet");
-        require(!playerDownvoted[msg.sender],"Has already Downvoted");
-        playerDownvoted[msg.sender] = true;
+        require(!playerDownvoted[msg.sender][houseAddress],"Has already Downvoted");
+        playerDownvoted[msg.sender][houseAddress] = true;
         houses[houseAddress].downVotes += 1;
         emit TrackerChanged(houseAddress,Action.updated);
     }    
