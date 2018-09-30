@@ -84,7 +84,7 @@ contract House is SafeMath, Owned {
 
     enum BetType { headtohead, multiuser, poolbet }
 
-    enum BetEvent { placeBet, callBet, removeBet, refuteBet, settleWinnedBet, settleCancelledBet, increaseWager }
+    enum BetEvent { placeBet, callBet, removeBet, refuteBet, settleWinnedBet, settleCancelledBet, increaseWager, cancelledByHouse }
 
     uint private betNextId;
 
@@ -147,6 +147,9 @@ contract House is SafeMath, Owned {
 
     //Player bet total amount on a Bet
     mapping (address => mapping (uint => uint256)) public playerBetTotalAmount;
+
+    //Player bet total bets on a Bet
+    mapping (address => mapping (uint => uint)) public playerBetTotalBets;
 
     //Player wager for a Bet.Output.Forcast
     mapping (address => mapping (uint => mapping (uint => uint256))) public playerBetForecastWager;
@@ -325,9 +328,9 @@ contract House is SafeMath, Owned {
             bets[betNextId].payoutRate = payoutRate;
         }       
 
-
-        betTotalBets[betNextId] += 1;
-        betTotalAmount[betNextId] += wager;
+        playerBetTotalBets[msg.sender][betNextId] = 1;
+        betTotalBets[betNextId] = 1;
+        betTotalAmount[betNextId] = wager;
         totalBets += 1;
         totalAmountOnBets += wager;
         if (houseData.housePercentage>0) {
@@ -340,9 +343,9 @@ contract House is SafeMath, Owned {
         balance[msg.sender] -= wager;
 
  
-        betForcastTotalAmount[betNextId][forecast] += wager;
+        betForcastTotalAmount[betNextId][forecast] = wager;
 
-        playerBetTotalAmount[msg.sender][betNextId] += wager;
+        playerBetTotalAmount[msg.sender][betNextId] = wager;
 
         playerBetForecastWager[msg.sender][betNextId][forecast] = wager;
 
@@ -379,6 +382,7 @@ contract House is SafeMath, Owned {
 
         balance[msg.sender] -= wager;
 
+        playerBetTotalBets[msg.sender][betId] += 1;
 
         betForcastTotalAmount[betId][forecast] += wager;
 
@@ -434,25 +438,25 @@ contract House is SafeMath, Owned {
      */
     function removeBet(uint betId, string createdBy) public {
         require(bets[betId].createdBy == msg.sender,"Caller and player created don't match");
-        require(betTotalBets[betId]==1,"The bet has been called by other player");
+        require(playerBetTotalBets[msg.sender][betId] > 0, "Player should has placed at least one bet");
+        require(betTotalBets[betId] == playerBetTotalBets[msg.sender][betId],"The bet has been called by other player");
         updateBetDataFromOracle(betId);  
         require(!bets[betId].isCancelled,"Bet has been cancelled");
         require(!bets[betId].isOutcomeSet,"Event has already an outcome");
         require(bets[betId].closeDateTime >= now,"Close time has passed");
         bets[betId].isCancelled = true;
         uint256 wager = betTotalAmount[betId];
-        betTotalBets[betId] -= 1;
-        betTotalAmount[betId] -= wager;
-        totalBets -= 1;
+        betTotalBets[betId] = 0;
+        betTotalAmount[betId] = 0;
+        totalBets -= playerBetTotalBets[msg.sender][betId];
         totalAmountOnBets -= wager;
         houseEdgeAmountForBet[betId] = 0;
         oracleEdgeAmountForBet[betId] = 0;
         balance[msg.sender] += wager;
-        playerBetTotalAmount[msg.sender][betId] -= wager;
-        totalPlayerBets[msg.sender] -= 1;
+        playerBetTotalAmount[msg.sender][betId] = 0;
+        totalPlayerBets[msg.sender] -= playerBetTotalBets[msg.sender][betId];
         totalPlayerBetsAmount[msg.sender] -= wager;
-        emit BetPlacedOrModified(betId, msg.sender, BetEvent.removeBet, wager,0, createdBy);
-        
+        emit BetPlacedOrModified(betId, msg.sender, BetEvent.removeBet, 0, 0, createdBy);      
     } 
 
     /*
@@ -469,7 +473,7 @@ contract House is SafeMath, Owned {
         if (betRefutedAmount[betId] >= betTotalAmount[betId]) {
             bets[betId].isCancelled;   
         }
-        emit BetPlacedOrModified(betId, msg.sender, BetEvent.refuteBet, playerBetTotalAmount[msg.sender][betId],0, createdBy);    
+        emit BetPlacedOrModified(betId, msg.sender, BetEvent.refuteBet, 0, 0, createdBy);    
     } 
 
     /*
@@ -574,6 +578,13 @@ contract House is SafeMath, Owned {
         _newHouseAddress = address(0);
         houseData.newBetsPaused = false;
         emit HousePropertiesUpdated();
+    }
+
+    function cancelBet(uint betId) onlyOwner public {
+        require(bets[betId].freezeDateTime > now,"Freeze time passed");
+        require(houseData.managed, "Cancel available on managed Houses");
+        bets[betId].isCancelled = true;
+        emit BetPlacedOrModified(betId, msg.sender, BetEvent.cancelledByHouse, 0, 0, "");  
     }
 
 
