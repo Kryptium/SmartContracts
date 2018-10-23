@@ -454,7 +454,8 @@ contract House is SafeMath, Owned {
         playerBetTotalAmount[msg.sender][betId] = 0;
         totalPlayerBets[msg.sender] -= playerBetTotalBets[msg.sender][betId];
         totalPlayerBetsAmount[msg.sender] -= wager;
-        emit BetPlacedOrModified(betId, msg.sender, BetEvent.removeBet, 0, 0, createdBy);      
+        playerBetTotalBets[msg.sender][betId] = 0;
+        emit BetPlacedOrModified(betId, msg.sender, BetEvent.removeBet, wager, 0, createdBy);      
     } 
 
     /*
