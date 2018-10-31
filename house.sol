@@ -441,7 +441,6 @@ contract House is SafeMath, Owned {
         require(playerBetTotalBets[msg.sender][betId] > 0, "Player should has placed at least one bet");
         require(betTotalBets[betId] == playerBetTotalBets[msg.sender][betId],"The bet has been called by other player");
         updateBetDataFromOracle(betId);  
-        require(!bets[betId].isCancelled,"Bet has been cancelled");
         bets[betId].isCancelled = true;
         uint256 wager = betTotalAmount[betId];
         betTotalBets[betId] = 0;
