@@ -469,7 +469,7 @@ contract House is SafeMath, Owned {
         playerBetRefuted[msg.sender][betId] = true;
         betRefutedAmount[betId] += playerBetTotalAmount[msg.sender][betId];
         if (betRefutedAmount[betId] >= betTotalAmount[betId]) {
-            bets[betId].isCancelled;   
+            bets[betId].isCancelled = true;   
         }
         emit BetPlacedOrModified(betId, msg.sender, BetEvent.refuteBet, 0, 0, createdBy);    
     } 
