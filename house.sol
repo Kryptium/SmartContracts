@@ -288,7 +288,7 @@ contract House is SafeMath, Owned {
         
         //The below statement removed in order to fix https://gitlab.com/ZKBet/docs/issues/238       
         // if (!bets[betId].isCancelled) {
-        //     (bets[betId].closeDateTime, bets[betId].freezeDateTime, bets[betId].isCancelled) = OracleContract(bets[betId].oracleAddress).getEventForHousePlaceBet(bets[betId].eventId);      
+        (bets[betId].closeDateTime, bets[betId].freezeDateTime, bets[betId].isCancelled) = OracleContract(bets[betId].oracleAddress).getEventForHousePlaceBet(bets[betId].eventId);      
         // }  
         if (!bets[betId].isOutcomeSet && bets[betId].freezeDateTime <= now) {
             bets[betId].isCancelled = true;
