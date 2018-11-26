@@ -1,20 +1,19 @@
 {
-    "abi": "[]",
-    "bytecode": "6080604052348015600f57600080fd5b50603580601d6000396000f3006080604052600080fd00a165627a7a72305820082938c0b2d9971f297de48da18d5f347c3561fc4f2e8ccf3e1666129f906bb90029",
+    "abi": [],
+    "bytecode": "6080604052348015600f57600080fd5b50603580601d6000396000f3fe6080604052600080fdfea165627a7a723058201ead369825657ea8e89aa53888611685ed891fe2a36c5ec87e4852d91ce762310029",
     "functionHashes": {},
     "gasEstimates": {
-        "creation": [
-            66,
-            10600
-        ],
-        "external": {},
+        "creation": {
+            "codeDepositCost": "10600",
+            "executionCost": "66",
+            "totalCost": "10666"
+        },
         "internal": {
-            "add(uint256,uint256)": null,
-            "div(uint256,uint256)": null,
-            "mul(uint256,uint256)": null,
-            "mulByFraction(uint256,uint256,uint256)": null,
-            "sub(uint256,uint256)": null
+            "add(uint256,uint256)": "infinite",
+            "div(uint256,uint256)": "infinite",
+            "mul(uint256,uint256)": "infinite",
+            "mulByFraction(uint256,uint256,uint256)": "infinite",
+            "sub(uint256,uint256)": "infinite"
         }
-    },
-    "runtimeBytecode": "6080604052600080fd00a165627a7a72305820082938c0b2d9971f297de48da18d5f347c3561fc4f2e8ccf3e1666129f906bb90029"
+    }
 }

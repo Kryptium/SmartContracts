@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 /**
  * @title SafeMath
@@ -48,7 +48,7 @@ contract Owned {
     }
 
     function transferOwnership(address newOwner) onlyOwner public {
-        require(newOwner != 0x0);
+        require(newOwner != address(0x0));
         owner = newOwner;
     }
 }
@@ -201,7 +201,7 @@ contract House is SafeMath, Owned {
     // Notifies clients that a house data has changed
     event HousePropertiesUpdated();    
 
-    event BetPlacedOrModified(uint id, address sender, BetEvent betEvent, uint256 amount, uint forecast, string createdBy);
+    event BetPlacedOrModified(uint id, address sender, BetEvent betEvent, uint256 amount, uint forecast, string createdBy, uint closeDateTime);
 
 
     event transfer(address indexed wallet, uint256 amount,bool inbound);
@@ -212,7 +212,7 @@ contract House is SafeMath, Owned {
      *
      * Initializes House contract
      */
-    constructor(bool managed, string houseName, string houseCreatorName, string houseCountryISO, address oracleAddress, address[] ownerAddress, uint[] ownerPercentage, uint housePercentage,uint oraclePercentage, uint version) public {
+    constructor(bool managed, string memory houseName, string memory houseCreatorName, string memory houseCountryISO, address oracleAddress, address[] memory ownerAddress, uint[] memory ownerPercentage, uint housePercentage,uint oraclePercentage, uint version) public {
         require(add(housePercentage,oraclePercentage)<1000,"House + Oracle percentage should be lower than 100%");
         houseData.managed = managed;
         houseData.name = houseName;
@@ -245,7 +245,7 @@ contract House is SafeMath, Owned {
      * Updates House Data function
      *
      */
-    function updateHouseProperties(string houseName, string houseCreatorName, string houseCountryISO) onlyOwner public {
+    function updateHouseProperties(string memory houseName, string memory houseCreatorName, string memory houseCountryISO) onlyOwner public {
         houseData.name = houseName;
         houseData.creatorName = houseCreatorName;
         houseData.countryISO = houseCountryISO;     
@@ -286,7 +286,7 @@ contract House is SafeMath, Owned {
             }
         }     
         
-        //Below statement removed in order to fix https://gitlab.com/ZKBet/docs/issues/238       
+        //The below statement removed in order to fix https://gitlab.com/ZKBet/docs/issues/238       
         // if (!bets[betId].isCancelled) {
         //     (bets[betId].closeDateTime, bets[betId].freezeDateTime, bets[betId].isCancelled) = OracleContract(bets[betId].oracleAddress).getEventForHousePlaceBet(bets[betId].eventId);      
         // }  
@@ -299,7 +299,7 @@ contract House is SafeMath, Owned {
     /*
      * Place a Bet
      */
-    function placeBet(uint eventId, BetType betType,uint outputId, uint forecast, uint256 wager, uint closingDateTime, uint256 minimumWager, uint256 maximumWager, uint256 payoutRate, string createdBy) public {
+    function placeBet(uint eventId, BetType betType,uint outputId, uint forecast, uint256 wager, uint closingDateTime, uint256 minimumWager, uint256 maximumWager, uint256 payoutRate, string memory createdBy) public {
         require(wager>0,"Wager should be greater than zero");
         require(balance[msg.sender]>=wager,"Not enough balance");
         require(!houseData.newBetsPaused,"Bets are paused right now");
@@ -354,13 +354,13 @@ contract House is SafeMath, Owned {
 
         totalPlayerBetsAmount[msg.sender] += wager;
 
-        emit BetPlacedOrModified(betNextId, msg.sender, BetEvent.placeBet, wager, forecast, createdBy);
+        emit BetPlacedOrModified(betNextId, msg.sender, BetEvent.placeBet, wager, forecast, createdBy, bets[betNextId].closeDateTime);
     }  
 
     /*
      * Call a Bet
      */
-    function callBet(uint betId, uint forecast, uint256 wager, string createdBy) public {
+    function callBet(uint betId, uint forecast, uint256 wager, string memory createdBy) public {
         require(wager>0,"Wager should be greater than zero");
         require(balance[msg.sender]>=wager,"Not enough balance");
         require(playerBetForecastWager[msg.sender][betId][forecast] == 0,"Already placed a bet for this forecast, use increaseWager method instead");
@@ -395,13 +395,13 @@ contract House is SafeMath, Owned {
 
         totalPlayerBetsAmount[msg.sender] += wager;
 
-        emit BetPlacedOrModified(betId, msg.sender, BetEvent.callBet, wager, forecast, createdBy);   
+        emit BetPlacedOrModified(betId, msg.sender, BetEvent.callBet, wager, forecast, createdBy, bets[betId].closeDateTime);   
     }  
 
     /*
      * Increase wager
      */
-    function increaseWager(uint betId, uint forecast, uint256 additionalWager, string createdBy) public {
+    function increaseWager(uint betId, uint forecast, uint256 additionalWager, string memory createdBy) public {
         require(additionalWager>0,"Increase wager amount should be greater than zero");
         require(balance[msg.sender]>=additionalWager,"Not enough balance");
         require(playerBetForecastWager[msg.sender][betId][forecast] > 0,"Haven't placed any bet for this forecast. Use callBet instead");
@@ -431,13 +431,13 @@ contract House is SafeMath, Owned {
 
         totalPlayerBetsAmount[msg.sender] += additionalWager;
 
-        emit BetPlacedOrModified(betId, msg.sender, BetEvent.increaseWager, additionalWager, forecast, createdBy);       
+        emit BetPlacedOrModified(betId, msg.sender, BetEvent.increaseWager, additionalWager, forecast, createdBy, bets[betId].closeDateTime);       
     }
 
     /*
      * Remove a Bet
      */
-    function removeBet(uint betId, string createdBy) public {
+    function removeBet(uint betId, string memory createdBy) public {
         require(bets[betId].createdBy == msg.sender,"Caller and player created don't match");
         require(playerBetTotalBets[msg.sender][betId] > 0, "Player should has placed at least one bet");
         require(betTotalBets[betId] == playerBetTotalBets[msg.sender][betId],"The bet has been called by other player");
@@ -455,13 +455,13 @@ contract House is SafeMath, Owned {
         totalPlayerBets[msg.sender] -= playerBetTotalBets[msg.sender][betId];
         totalPlayerBetsAmount[msg.sender] -= wager;
         playerBetTotalBets[msg.sender][betId] = 0;
-        emit BetPlacedOrModified(betId, msg.sender, BetEvent.removeBet, wager, 0, createdBy);      
+        emit BetPlacedOrModified(betId, msg.sender, BetEvent.removeBet, wager, 0, createdBy, bets[betId].closeDateTime);      
     } 
 
     /*
      * Refute a Bet
      */
-    function refuteBet(uint betId, string createdBy) public {
+    function refuteBet(uint betId, string memory createdBy) public {
         require(playerBetTotalAmount[msg.sender][betId]>0,"Caller hasn't placed any bet");
         require(!playerBetRefuted[msg.sender][betId],"Already refuted");
         updateBetDataFromOracle(betId);  
@@ -472,7 +472,7 @@ contract House is SafeMath, Owned {
         if (betRefutedAmount[betId] >= betTotalAmount[betId]) {
             bets[betId].isCancelled = true;   
         }
-        emit BetPlacedOrModified(betId, msg.sender, BetEvent.refuteBet, 0, 0, createdBy);    
+        emit BetPlacedOrModified(betId, msg.sender, BetEvent.refuteBet, 0, 0, createdBy, bets[betId].closeDateTime);    
     } 
 
     /*
@@ -495,7 +495,7 @@ contract House is SafeMath, Owned {
     /*
      * Settle a Bet
      */
-    function settleBet(uint betId, string createdBy) public {
+    function settleBet(uint betId, string memory createdBy) public {
         require(playerBetTotalAmount[msg.sender][betId]>0, "Caller hasn't placed any bet");
         require(!playerBetSettled[msg.sender][betId],"Already settled");
         updateBetDataFromOracle(betId);
@@ -532,10 +532,10 @@ contract House is SafeMath, Owned {
         housePaid[betId] = true;
         playerBetSettled[msg.sender][betId] = true;
         balance[msg.sender] += playerOutputFromBet[msg.sender][betId];
-        emit BetPlacedOrModified(betId, msg.sender, betEvent, playerOutputFromBet[msg.sender][betId],0, createdBy);  
+        emit BetPlacedOrModified(betId, msg.sender, betEvent, playerOutputFromBet[msg.sender][betId],0, createdBy, bets[betId].closeDateTime);  
     } 
 
-    function() public payable {
+    function() external payable {
         balance[msg.sender] = add(balance[msg.sender],msg.value);
         emit transfer(msg.sender,msg.value,true);
     }
@@ -548,18 +548,18 @@ contract House is SafeMath, Owned {
         return (totalPlayerBets[playerAddress] > 0);
     }
 
-    function updateShortMessage(string shortMessage) onlyOwner public {
+    function updateShortMessage(string memory shortMessage) onlyOwner public {
         houseData.shortMessage = shortMessage;
         emit HousePropertiesUpdated();
     }
 
-    function startNewBets(string shortMessage) onlyOwner public {
+    function startNewBets(string memory shortMessage) onlyOwner public {
         houseData.shortMessage = shortMessage;
         houseData.newBetsPaused = false;
         emit HousePropertiesUpdated();
     }
 
-    function stopNewBets(string shortMessage) onlyOwner public {
+    function stopNewBets(string memory shortMessage) onlyOwner public {
         houseData.shortMessage = shortMessage;
         houseData.newBetsPaused = true;
         emit HousePropertiesUpdated();
@@ -583,7 +583,7 @@ contract House is SafeMath, Owned {
         require(bets[betId].freezeDateTime > now,"Freeze time passed");
         require(houseData.managed, "Cancel available on managed Houses");
         bets[betId].isCancelled = true;
-        emit BetPlacedOrModified(betId, msg.sender, BetEvent.cancelledByHouse, 0, 0, "");  
+        emit BetPlacedOrModified(betId, msg.sender, BetEvent.cancelledByHouse, 0, 0, "", bets[betId].closeDateTime);  
     }
 
 
@@ -595,7 +595,7 @@ contract House is SafeMath, Owned {
         emit transfer(msg.sender,amount,false);
     }
 
-    function withdrawToAddress(address destinationAddress,uint256 amount) public {
+    function withdrawToAddress(address payable destinationAddress,uint256 amount) public {
         require(address(this).balance>=amount);
         require(balance[msg.sender]>=amount,"Insufficient balance");
         balance[msg.sender] = sub(balance[msg.sender],amount);

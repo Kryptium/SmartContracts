@@ -1,14 +1,38 @@
 {
-    "abi": "[{\"constant\":true,\"inputs\":[],\"name\":\"isHouse\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]",
+    "abi": [
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "isHouse",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "owner",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        }
+    ],
     "bytecode": "",
     "functionHashes": {
         "isHouse()": "6369313d",
         "owner()": "8da5cb5b"
     },
-    "gasEstimates": {
-        "creation": {},
-        "external": {},
-        "internal": {}
-    },
-    "runtimeBytecode": ""
+    "gasEstimates": null
 }
