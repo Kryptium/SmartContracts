@@ -1,8 +1,27 @@
+/*
+ * Kryptium House Smart Contract
+ * Copyright © 2018 Kryptium Team <info@kryptium.io>
+ * Author: Giannis Zarifis <jzarifis@kryptium.io>
+ * 
+ * A decentralised betting house in the form of an Ethereum smart contract which 
+ * registers bets, escrows the amounts wagered and transfers funds following the 
+ * outcomes of the corresponding events. It can be fully autonomous or managed 
+ * and might charge a commission for its services.
+ *
+ * This program is free to use according the Terms and Conditions available at
+ * <https://kryptium.io/terms-and-conditions/>. You cannot resell it or copy any
+ * part of it or modify it without permission from the Kryptium Team.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the Terms and Conditions for more details.
+ */
+
 pragma solidity ^0.5.0;
 
 /**
- * @title SafeMath
- * @dev Math operations with safety checks that throw on error
+ * SafeMath
+ * Math operations with safety checks that throw on error
  */
 contract SafeMath {
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -75,8 +94,7 @@ interface HouseContract {
 
 
 /*
- * Kryptium House Samrt Contract.  Copyright © 2018 by Kryptium Team <info@kryptium.io>.
- * Author: Giannis Zarifis <jzarifis@kryptium.io>.
+ * Kryptium House Smart Contract.
  */
 contract House is SafeMath, Owned {
 
@@ -151,10 +169,10 @@ contract House is SafeMath, Owned {
     //Player bet total bets on a Bet
     mapping (address => mapping (uint => uint)) public playerBetTotalBets;
 
-    //Player wager for a Bet.Output.Forcast
+    //Player wager for a Bet.Output.Forecast
     mapping (address => mapping (uint => mapping (uint => uint256))) public playerBetForecastWager;
 
-    //Player output(Cause or win or refund)  of a bet
+    //Player output(cause or win or refund)  of a bet
     mapping (address => mapping (uint => uint256)) public playerOutputFromBet;    
 
     //Player bet Refuted
@@ -180,7 +198,7 @@ contract House is SafeMath, Owned {
     //The array of house owners
     address[] public owners;
 
-    //The House and Oracle Edge has been paid
+    //The House and Oracle edge has been paid
     mapping (uint => bool) public housePaid;
 
     //The total remaining House amount collected from fees for Bet
@@ -285,7 +303,7 @@ contract House is SafeMath, Owned {
             }
         }     
         
-        //The below statement removed in order to fix https://gitlab.com/ZKBet/docs/issues/238       
+        //The below statement was removed in order to fix issue #238       
         // if (!bets[betId].isCancelled) {
         (bets[betId].closeDateTime, bets[betId].freezeDateTime, bets[betId].isCancelled) = OracleContract(bets[betId].oracleAddress).getEventForHousePlaceBet(bets[betId].eventId);      
         // }  
