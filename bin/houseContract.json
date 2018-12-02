@@ -2,6 +2,25 @@
     "abi": [
         {
             "constant": true,
+            "inputs": [
+                {
+                    "name": "playerAddress",
+                    "type": "address"
+                }
+            ],
+            "name": "isPlayer",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
             "inputs": [],
             "name": "isHouse",
             "outputs": [
@@ -32,6 +51,7 @@
     "bytecode": "",
     "functionHashes": {
         "isHouse()": "6369313d",
+        "isPlayer(address)": "09c95e10",
         "owner()": "8da5cb5b"
     },
     "gasEstimates": null
