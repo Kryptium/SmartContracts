@@ -1,8 +1,26 @@
+/*
+ * Kryptium Oracle Smart Contract
+ * Copyright © 2018 Kryptium Team <info@kryptium.io>
+ * Author: Giannis Zarifis <jzarifis@kryptium.io>
+ * 
+ * The Oracle smart contract is used by the House smart contract (and, in turn, 
+ * the betting app) as a “trusted source of truth” for upcoming events and their 
+ * outcomes. It is managed by an entity trusted by the owner of the House.
+ *
+ * This program is free to use according the Terms and Conditions available at
+ * <https://kryptium.io/terms-and-conditions/>. You cannot resell it or copy any
+ * part of it or modify it without permission from the Kryptium Team.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the Terms and Conditions for more details.
+ */
+
 pragma solidity ^0.5.0;
 
 /**
- * @title SafeMath
- * @dev Math operations with safety checks that throw on error
+ * SafeMath
+ * Math operations with safety checks that throw on error
  */
 contract SafeMath {
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -54,8 +72,7 @@ contract Owned {
 }
 
 /*
- * Kryptium Oracle Samrt Contract.  Copyright © 2018 by Kryptium Team <info@kryptium.io>.
- * Author: Giannis Zarifis <jzarifis@kryptium.io>.
+ * Kryptium Oracle Smart Contract.  
  */
 contract Oracle is SafeMath, Owned {
 
@@ -137,19 +154,19 @@ contract Oracle is SafeMath, Owned {
 
 
 
-    // Notifies clients that a new oracle is launched
+    // Notifies clients that a new Oracle was launched
     event OracleCreated();
 
-    // Notifies clients that an Oracle data has changed
+    // Notifies clients that the details of an Oracle were changed
     event OraclePropertiesUpdated();    
 
-    // Notifies clients that an Oracle subcategory has added
+    // Notifies clients that an Oracle subcategory was added
     event OracleSubcategoryAdded(uint id);    
 
-    // Notifies clients that an Oracle subcategory has changed
+    // Notifies clients that an Oracle subcategory was changed
     event OracleSubcategoryUpdated(uint id);    
     
-    // Notifies clients that an Oracle Event has changed
+    // Notifies clients that an Oracle Event was changed
     event UpcomingEventUpdated(uint id,uint closeDateTime);
 
 
