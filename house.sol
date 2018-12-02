@@ -75,8 +75,8 @@ interface HouseContract {
 
 
 /*
- * ZKBet House Contract.  Copyright © 2018 by ZKBet.
- * Author: Giannis Zarifis <jzarifis@gmail.com>
+ * Kryptium House Samrt Contract.  Copyright © 2018 by Kryptium Team <info@kryptium.io>.
+ * Author: Giannis Zarifis <jzarifis@kryptium.io>.
  */
 contract House is SafeMath, Owned {
 
@@ -209,7 +209,6 @@ contract House is SafeMath, Owned {
 
     /**
      * Constructor function
-     *
      * Initializes House contract
      */
     constructor(bool managed, string memory houseName, string memory houseCreatorName, string memory houseCountryISO, address oracleAddress, address[] memory ownerAddress, uint[] memory ownerPercentage, uint housePercentage,uint oraclePercentage, uint version) public {

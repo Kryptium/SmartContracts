@@ -35,20 +35,20 @@
             "type": "constructor"
         }
     ],
-    "bytecode": "608060405234801561001057600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550610224806100606000396000f3fe60806040526004361061004c576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680638da5cb5b14610051578063f2fde38b146100a8575b600080fd5b34801561005d57600080fd5b506100666100f9565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b3480156100b457600080fd5b506100f7600480360360208110156100cb57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061011e565b005b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561017957600080fd5b600073ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff16141515156101b557600080fd5b806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505056fea165627a7a72305820ca9987657b72b016c1d3a245f98a81a09710718a14ad440d6db843598297dfbb0029",
+    "bytecode": "608060405234801561001057600080fd5b5060008054600160a060020a0319163317905561019a806100326000396000f3fe60806040526004361061004b5763ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416638da5cb5b8114610050578063f2fde38b1461008e575b600080fd5b34801561005c57600080fd5b506100656100d0565b6040805173ffffffffffffffffffffffffffffffffffffffff9092168252519081900360200190f35b34801561009a57600080fd5b506100ce600480360360208110156100b157600080fd5b503573ffffffffffffffffffffffffffffffffffffffff166100ec565b005b60005473ffffffffffffffffffffffffffffffffffffffff1681565b60005473ffffffffffffffffffffffffffffffffffffffff16331461011057600080fd5b73ffffffffffffffffffffffffffffffffffffffff8116151561013257600080fd5b6000805473ffffffffffffffffffffffffffffffffffffffff191673ffffffffffffffffffffffffffffffffffffffff9290921691909117905556fea165627a7a723058203c73fd195d66a85b4410c89b9be50dcc596fed35b29ece535554abd4a44297de0029",
     "functionHashes": {
         "owner()": "8da5cb5b",
         "transferOwnership(address)": "f2fde38b"
     },
     "gasEstimates": {
         "creation": {
-            "codeDepositCost": "109600",
-            "executionCost": "20425",
-            "totalCost": "130025"
+            "codeDepositCost": "82000",
+            "executionCost": "20421",
+            "totalCost": "102421"
         },
         "external": {
-            "owner()": "442",
-            "transferOwnership(address)": "20832"
+            "owner()": "399",
+            "transferOwnership(address)": "20702"
         }
     }
 }

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 /**
  * @title SafeMath
@@ -36,7 +36,7 @@ contract SafeMath {
 
 contract Owned {
 
-    address public owner;
+    address payable public owner;
 
     constructor() public {
         owner = msg.sender;
@@ -47,8 +47,8 @@ contract Owned {
         _;
     }
 
-    function transferOwnership(address newOwner) onlyOwner public {
-        require(newOwner != 0x0);
+    function transferOwnership(address payable newOwner) onlyOwner public {
+        require(newOwner != address(0x0));
         owner = newOwner;
     }
 }
@@ -64,8 +64,8 @@ interface HouseContract {
 }
 
 /*
- * ZKBet Tracker Contract.  Copyright © 2018 by ZKBet.
- * Author: Giannis Zarifis <jzarifis@gmail.com>
+ * Kryptium Tracker Samrt Contract.  Copyright © 2018 by Kryptium Team <info@kryptium.io>.
+ * Author: Giannis Zarifis <jzarifis@kryptium.io>.
  */
 contract Tracker is SafeMath, Owned {
 
@@ -113,10 +113,9 @@ contract Tracker is SafeMath, Owned {
 
     /**
      * Constructor function
-     *
      * Initializes Tracker data
      */
-    constructor(string trackerName, string trackerCreatorName, bool trackerIsManaged, uint version) public {
+    constructor(string memory trackerName, string memory trackerCreatorName, bool trackerIsManaged, uint version) public {
         trackerData.name = trackerName;
         trackerData.creatorName = trackerCreatorName;
         trackerData.managed = trackerIsManaged;
@@ -129,7 +128,7 @@ contract Tracker is SafeMath, Owned {
      *
      * Updates trackersstats
      */
-    function updateTrackerNames(string newName, string newCreatorName) onlyOwner public {
+    function updateTrackerNames(string memory newName, string memory newCreatorName) onlyOwner public {
         trackerData.name = newName;
         trackerData.creatorName = newCreatorName;
         emit TrackerNamesUpdated();

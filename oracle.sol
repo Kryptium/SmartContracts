@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 /**
  * @title SafeMath
@@ -48,14 +48,14 @@ contract Owned {
     }
 
     function transferOwnership(address newOwner) onlyOwner public {
-        require(newOwner != 0x0);
+        require(newOwner != address(0x0));
         owner = newOwner;
     }
 }
 
 /*
- * ZKBet Oracle Contract.  Copyright © 2018 by ZKBet.
- * Author: Giannis Zarifis <jzarifis@gmail.com>
+ * Kryptium Oracle Samrt Contract.  Copyright © 2018 by Kryptium Team <info@kryptium.io>.
+ * Author: Giannis Zarifis <jzarifis@kryptium.io>.
  */
 contract Oracle is SafeMath, Owned {
 
@@ -156,11 +156,9 @@ contract Oracle is SafeMath, Owned {
 
     /**
      * Constructor function
-     *
      * Initializes Oracle contract
-     * Remix sample constructor call "oracleName","oracleCreatorName",15,20
      */
-    constructor(string oracleName, string oracleCreatorName, uint closeBeforeStartTime, uint closeEventOutcomeTime, uint version) public {
+    constructor(string memory oracleName, string memory oracleCreatorName, uint closeBeforeStartTime, uint closeEventOutcomeTime, uint version) public {
         oracleData.name = oracleName;
         oracleData.creatorName = oracleCreatorName;
         oracleData.closeBeforeStartTime = closeBeforeStartTime;
@@ -174,7 +172,7 @@ contract Oracle is SafeMath, Owned {
      *
      * Updates Oracle Data
      */
-    function updateOracleNames(string newName, string newCreatorName) onlyOwner public {
+    function updateOracleNames(string memory newName, string memory newCreatorName) onlyOwner public {
         oracleData.name = newName;
         oracleData.creatorName = newCreatorName;
         emit OraclePropertiesUpdated();
@@ -195,7 +193,7 @@ contract Oracle is SafeMath, Owned {
     /**
      * Adds an Oracle Subcategory
      */
-    function setSubcategory(uint id, uint categoryId, string name,string country,bool hidden) onlyOwner public {
+    function setSubcategory(uint id, uint categoryId, string memory name,string memory country,bool hidden) onlyOwner public {
         if (id==0) {
             subcategoryNextId += 1;
             id = subcategoryNextId;
@@ -220,7 +218,7 @@ contract Oracle is SafeMath, Owned {
     /**
      * Adds an Upcoming Event
      */
-    function addUpcomingEvent(uint id, string title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId, string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults,uint decimals) onlyOwner public {        
+    function addUpcomingEvent(uint id, string memory title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId, string memory outputTitle, EventOutputType eventOutputType, bytes32[] memory _possibleResults,uint decimals) onlyOwner public {        
         if (id==0) {
             eventNextId += 1;
             id = eventNextId;
@@ -253,7 +251,7 @@ contract Oracle is SafeMath, Owned {
     /**
      * Adds a new output to existing an Upcoming Event
      */
-    function addUpcomingEventOutput(uint id, string outputTitle, EventOutputType eventOutputType, bytes32[] _possibleResults,uint decimals) onlyOwner public {
+    function addUpcomingEventOutput(uint id, string memory outputTitle, EventOutputType eventOutputType, bytes32[] memory _possibleResults,uint decimals) onlyOwner public {
         require(events[id].closeDateTime >= now,"Close time should be greater than now");
         eventOutputs[id][events[id].totalAvailableOutputs].title = outputTitle;
         eventOutputs[id][events[id].totalAvailableOutputs].possibleResultsCount = _possibleResults.length;
@@ -269,7 +267,7 @@ contract Oracle is SafeMath, Owned {
     /**
      * Updates an Upcoming Event
      */
-    function updateUpcomingEvent(uint id, string title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId) onlyOwner public {
+    function updateUpcomingEvent(uint id, string memory title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId) onlyOwner public {
         uint closeDateTime = startDateTime - oracleData.closeBeforeStartTime * 1 minutes;
         uint freezeDateTime = endDateTime + oracleData.closeEventOutcomeTime * 1 minutes;
         events[id].title = title;
@@ -298,7 +296,7 @@ contract Oracle is SafeMath, Owned {
     /**
      * Set the numeric type outcome of Event output
      */
-    function setEventOutcomeNumeric(uint eventId, uint outputId, string announcement, bool setEventAnnouncement, uint256 outcome1, uint256 outcome2,uint256 outcome3,uint256 outcome4, uint256 outcome5, uint256 outcome6) onlyOwner public {
+    function setEventOutcomeNumeric(uint eventId, uint outputId, string memory announcement, bool setEventAnnouncement, uint256 outcome1, uint256 outcome2,uint256 outcome3,uint256 outcome4, uint256 outcome5, uint256 outcome6) onlyOwner public {
         require(events[eventId].freezeDateTime > now,"Freeze time should be greater than now");
         require(!events[eventId].isCancelled,"Cancelled Event");
         require(eventOutputs[eventId][outputId].eventOutputType == EventOutputType.numeric,"Required numeric Event type");
@@ -319,7 +317,7 @@ contract Oracle is SafeMath, Owned {
      /**
      * Set the outcome of Event output
      */
-    function setEventOutcome(uint eventId, uint outputId, string announcement, bool setEventAnnouncement, uint _eventOutcome ) onlyOwner public {
+    function setEventOutcome(uint eventId, uint outputId, string memory announcement, bool setEventAnnouncement, uint _eventOutcome ) onlyOwner public {
         require(events[eventId].freezeDateTime > now,"Freeze time should be greater than now");
         require(!events[eventId].isCancelled,"Cancelled Event");
         require(eventOutputs[eventId][outputId].eventOutputType == EventOutputType.stringarray,"Required array of options Event type");
