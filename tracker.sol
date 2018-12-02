@@ -1,3 +1,12 @@
+/*
+ * Kryptium Tracker Smart Contract
+ * 
+ * A “registry” of “houses” based on the Ethereum blockchain which also keeps
+ * track of users' upvotes/downvotes for specific houses. It can be fully 
+ * autonomous or managed and, in the future, it might support charging
+ * registration fees. The deployment of this component is optional.
+ */
+
 pragma solidity ^0.5.0;
 
 /**
@@ -101,13 +110,13 @@ contract Tracker is SafeMath, Owned {
     // Player has downvoted a House
     mapping (address => mapping (address => bool)) public playerDownvoted;
 
-    // Notifies clients that a house has insterted/altered
+    // Notifies clients that a house was inserted/altered
     event TrackerChanged(address indexed  newHouseAddress, Action action);
 
-    // Notifies clients that a new tracker is launched
+    // Notifies clients that a new tracker was launched
     event TrackerCreated();
 
-    // Notifies clients that a Tracker names has has changed
+    // Notifies clients that the Tracker's name was changed
     event TrackerNamesUpdated();    
 
 
