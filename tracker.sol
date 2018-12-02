@@ -1,17 +1,26 @@
 /*
  * Kryptium Tracker Smart Contract
+ * Copyright © 2018 Kryptium Team <info@kryptium.io>
+ * Author: Giannis Zarifis <jzarifis@kryptium.io>
  * 
- * A “registry” of “houses” based on the Ethereum blockchain which also keeps
- * track of users' upvotes/downvotes for specific houses. It can be fully 
- * autonomous or managed and, in the future, it might support charging
- * registration fees. The deployment of this component is optional.
+ * A registry of betting houses based on the Ethereum blockchain. It keeps track
+ * of users' upvotes/downvotes for specific houses and can be fully autonomous 
+ * or managed.
+ *
+ * This program is free to use according the Terms and Conditions available at
+ * <https://kryptium.io/terms-and-conditions/>. You cannot resell it or copy any
+ * part of it or modify it without permission from the Kryptium Team.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the Terms and Conditions for more details.
  */
 
 pragma solidity ^0.5.0;
 
 /**
- * @title SafeMath
- * @dev Math operations with safety checks that throw on error
+ * SafeMath
+ * Math operations with safety checks that throw on error
  */
 contract SafeMath {
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -64,8 +73,8 @@ contract Owned {
 
 
 /*
-House smart contract interface
-*/
+ * House smart contract interface
+ */
 interface HouseContract {
      function owner() external view returns (address); 
      function isHouse() external view returns (bool);
@@ -73,8 +82,7 @@ interface HouseContract {
 }
 
 /*
- * Kryptium Tracker Samrt Contract.  Copyright © 2018 by Kryptium Team <info@kryptium.io>.
- * Author: Giannis Zarifis <jzarifis@kryptium.io>.
+ * Kryptium Tracker Smart Contract.  
  */
 contract Tracker is SafeMath, Owned {
 
