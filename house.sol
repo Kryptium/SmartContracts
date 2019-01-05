@@ -302,11 +302,9 @@ contract House is SafeMath, Owned {
                 (bets[betId].outcome) = OracleContract(bets[betId].oracleAddress).getEventOutcome(bets[betId].eventId,bets[betId].outputId); 
             }
         }     
-        
-        //The below statement was removed in order to fix issue #238       
-        // if (!bets[betId].isCancelled) {
+        if (!bets[betId].isCancelled) {
         (bets[betId].closeDateTime, bets[betId].freezeDateTime, bets[betId].isCancelled) = OracleContract(bets[betId].oracleAddress).getEventForHousePlaceBet(bets[betId].eventId);      
-        // }  
+        }  
         if (!bets[betId].isOutcomeSet && bets[betId].freezeDateTime <= now) {
             bets[betId].isCancelled = true;
         }
