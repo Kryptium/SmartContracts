@@ -8,8 +8,8 @@
  * outcomes of the corresponding events. It can be fully autonomous or managed 
  * and might charge a commission for its services.
  *
- * This program is free to use according the Terms and Conditions available at
- * <https://kryptium.io/terms-and-conditions/>. You cannot resell it or copy any
+ * This program is free to use according the Terms of Use available at
+ * <https://kryptium.io/terms-of-use/>. You cannot resell it or copy any
  * part of it or modify it without permission from the Kryptium Team.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT 
