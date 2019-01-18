@@ -6,7 +6,7 @@ To use Kryptium as a player, you need to download and install the betting app wh
 Kryptium “back-end” functionality is implemented in the form of smart contracts which can be deployed on Ethereum or other Solidity-compatible blockchain networks (Ethereum Classic, Expanse, PIRL, Callisto, Ellaism, POA and Musicoin). 
 - **Oracle smart contract.** For publishing events and their outcomes on the blockchain. It can support events from various sectors, including sports, politics, e-sports, stock markets etc. Oracle smart contracts are independent from the rest of the platform, since they can be deployed by anybody and provide their event data to any other smart contract or app. 
 - **House smart contract.** It registers bets, receives stakes and transfers funds to winners’ accounts based on the outcomes of the corresponding events. The “trusted source of truth” for all event data is an oracle smart contract. House smart contracts can be fully autonomous or managed and might charge a commission for their services. The “managed” version allows its owners to cancel bets which they might consider as “unfair”.
--	**Tracker smart contract.** It functions as a “registry” of Kryptium house smart contracts and keeps track of users’ upvotes/downvotes. Tracker smart contracts can be fully autonomous or managed. The “managed” version allows “controlled” registration of houses by the owner of the smart contract. The deployment of this component is optional.
+- **Tracker smart contract.** It functions as a “registry” of Kryptium house smart contracts and keeps track of users’ upvotes/downvotes. Tracker smart contracts can be fully autonomous or managed. The “managed” version allows “controlled” registration of houses by the owner of the smart contract. The deployment of this component is optional.
 
 ## Deployment methods
 
@@ -100,76 +100,99 @@ However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smar
 
     Click “transact”. A Metamask dialog will open asking to confirm the transaction. Press “Confirm” and wait for the transaction to be mined.
 
-12. Monitor the transaction’s status by clicking the link under the “transact to Oracle.setSubcategory pending ...” at the logs area of Remix
+2. Monitor the transaction’s status by clicking the link under the “transact to Oracle.setSubcategory pending ...” at the logs area of Remix
 
-13. Once your transaction is mined, check your newly created Subcategory by expanding the “subcategories” section. Enter the subcategory Id to get the Subcategory info from the blockchain
+3. Once your transaction is mined, check your newly created Subcategory by expanding the “subcategories” section. Enter the subcategory Id to get the Subcategory info from the blockchain
 
     ![subcategory info](/images/subcategory_info.png)
 
 ## Publish an Event on your Oracle smart contract
-1.	Expand the addUpcomingEvent section and fill in the required values:
-Id :  <A unique Id for your Event. Use zero for an autoincrement automatic value.>
-title: <Event title (e.g. “Denver Nuggets - Portland Trail Blazers”)>
-startDateTime : <The event start time in epoch format (e.g. 1547427600)>
-endDateTime : <The event end time in epoch format (e.g. 1547436600)>
-subcategoryId : <The Subcategory Id of the previously created subcategory>
-categoryId : <2 for Basketball, see previous list of category ids>
-outputTitle : <An output title, “Winner”>
-eventOutputType : <Enter 0>
-_possibleResults : abi encoded array of bytes32. To convert a string to bytes32 open the development tools in your browser, go to the console and type web3.fromAscii("{string to be converted}"). For the NBA game “Denver Nuggets - Portland Trail Blazers” the correct input of _possibleResults  is ["0x44656e766572204e756767657473","0x506f72746c616e6420547261696c20426c617a657273"]
-decimals : 0
+1. Expand the "addUpcomingEvent" section and fill in the required values:
 
+    ```
+    Id: <A unique Id for your Event. Use zero for an autoincrement automatic value.>
+    title: <Event title (e.g. “Denver Nuggets - Portland Trail Blazers”)>
+    startDateTime: <The event start time in epoch format (e.g. 1547427600)>
+    endDateTime: <The event end time in epoch format (e.g. 1547436600)>
+    subcategoryId: <The Subcategory Id of the previously created subcategory>
+    categoryId: <"2" for Basketball, see previous list of category ids>
+    outputTitle: <An output/outcome label, e.g. “Winner”>
+    eventOutputType: <Enter "0">
+    _possibleResults: <abi encoded array of bytes32. 
+      To convert a string to bytes32 open the development tools in your browser, 
+      go to the console and type web3.fromAscii("{string to be converted}"). 
+      For the NBA game “Denver Nuggets - Portland Trail Blazers” the correct input 
+      of _possibleResults is: 
+      ["0x44656e766572204e756767657473","0x506f72746c616e6420547261696c20426c617a657273"]>
+    decimals: 0
+    ```
+    
+    ![add upcoming event](/images/add_upcoming_event.png)
  
-Then click “transact”. A Metamask dialog will open asking to confirm the transaction. Press “Confirm” and wait for the transaction to be mined.
+    Then click “transact”. A Metamask dialog will open asking to confirm the transaction. Press “Confirm” and wait for the transaction to be mined.
 
-14.	Monitor the transaction’s status by clicking the link under the “transact to Oracle.addUpcomingEvent pending ...” at the logs area of Remix
-15.	Once the transaction is mined, check your new Event by expanding the “events” section. Enter the unique event id to get the Event info from the blockchain
+2. Monitor the transaction’s status by clicking the link under the “transact to Oracle.addUpcomingEvent pending ...” at the logs area of Remix
+
+3. Once the transaction is mined, check your new Event by expanding the “events” section. Enter the unique event id to get the Event info from the blockchain
  
+    ![get event info](/images/get_event_info.png)
 
+## Set the result of an Event
+1. Expand the "setEventOutcome" section and fill in the values:
 
-Set the result of an Event
-1.	Expand the setEventOutcome section and fill in the values:
-eventId : <The unique Event Id (e.g. 1 for the above deployed Event)>
-outputId : <0>
-announcement : <The final score of the Event (e.g. “102-118”)>
-setEventAnnouncement : <true>
-_eventOutcome : <The index of the result, from the array of event’s possible results, that won the Event. If the score of the "Denver Nuggets - Portland Trail Blazers" was 102-118 then Portland Trail Blazers won the match so the right index is 1>
+    ```
+    eventId: <The unique Event Id (e.g. 1 for the above deployed Event)>
+    outputId: 0
+    announcement: <The final score of the Event (e.g. “102-118”)>
+    setEventAnnouncement: true
+    _eventOutcome: <The index of the result, from the array of event’s possible results, 
+      that won the Event. If the score of the "Denver Nuggets - Portland Trail Blazers" 
+      was 102-118 then Portland Trail Blazers won the match so the right index is 1>
+    ```
+    
+    ![set_event_outcome](/images/set_event_outcome.png)
  
-Click transact and wait the transaction to be mined.
+    Click transact and wait the transaction to be mined.
 
+## Deploy a House that uses your Oracle as a source of Events
+1. Click the “Add local file to the browser storage explorer”
 
-Deploy a House that uses your Oracle as a source of Events
-1.	Click the “Add local file to the browser storage explorer”
+    ![add local file](/images/add_local_file.png)
+
+2. In the “File name” textbox enter the URL https://raw.githubusercontent.com/Kryptium/SmartContracts/master/house.sol 
  
-2.	In the “File name” textbox enter the URL https://raw.githubusercontent.com/Kryptium/SmartContracts/master/house.sol 
+    ![file name house](/images/file_name_house.png)
+
+3. Click “Start to compile”
+
+    ![start to compile](/images/start_to_compile.png)
+
+4. Switch to the “Run” tab and select “House” from the dropdown
  
+    ![house dropdown](/images/house_dropdown.png)
 
-3.	Click “Start to compile”
+5. Expand the Deploy section and fill in the values:
+
+    ```
+    managed: true
+    houseName: <Your House name>
+    houseCreatorName : <House creator name(You)>
+    houseCountryISO: <Leave it empty>
+    oracleAddress: <An Oracle address. Use the address of your previously deployed Oracle smart contract>
+    ownerAddress: <Array of addresses that collect the generated fees by the House.>
+    ownerPercentage: <Array of uint ‰ of fees that will be distributed to each owner in the ownerAddress array>
+    housePercentage: <‰ of your House commission>
+    oraclePercentage: <‰ of fees to be assigned to the Oracle smart contract owner>
+    Version: <Enter "102">
+    ```
+
+    ![deploy house](/images/deploy_house.png)
  
+    Press transact and wait for the transaction to be mined.
 
-4.	Switch to the “Run” tab and select “House” from the dropdown
- 
+6. Once the transaction mined look at the “Deployed Contracts” area, you will see something like:
 
-5.	Expand the Deploy section and fill in the values:
-managed : <true>
-houseName : <Your House name>
-houseCreatorName : <House creator name(You)>
-houseCountryISO : <Leave it empty>
-oracleAddress : <An Oracle address. Use the address of your previously deployed Oracle smart contract>
-ownerAddress : <Array of addresses that collect the generated fees by the House.>
-ownerPercentage : <Array of uint ‰ of fees that will be distributed to each owner in the ownerAddress array
-housePercentage : <‰ of your House commission>
-oraclePercentage : <‰ of fees to be assigned to the Oracle smart contract owner>
-Version : <Enter 102>
+    ![deployed contracts house](/images/deployed_contracts_house.png)
 
- 
-
-Press transact and wait for the transaction to be mined.
-
-6.	Once the transaction mined look at the “Deployed Contracts” area, you will see something like:
- 
-
-
-Enable betting on your newly deployed House
-1.	Expand the startNewBets section and click “transact”.
-
+## Enable betting on your newly deployed House
+1. Expand the "startNewBets" section and click “transact”.
