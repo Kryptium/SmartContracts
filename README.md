@@ -65,41 +65,48 @@ However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smar
 
 11. Copy the address and store it somewhere, as it will be needed in the next steps
 
-Publish a Subcategory on your Oracle smart contract
-1.	Expand the “setSubcategory” section on the “Deployed Contracts” area and fill in the required values:
-Id : <A unique Id for your Subcategory. Use zero for an autoincrement automatic value>
-categoryId : <One of the currently supported values below> 
-FootballSoccer = 1,
-Basketball = 2,
-Baseball = 3,
-AmericanFootball = 4,
-Boxing = 5,
-HorseRacing = 6,
-Cycling = 7,
-Tennis = 8,
-ESports = 9,
-Golf = 10,
-Rugby = 11,
-MotorRacing = 12,
-Cricket = 13,
-UFCMMA = 14,
-Handball = 15,
-Snooker = 16,
-Darts = 17,
-WinterSports = 18,
-IceHockey = 19,
-Volleyball = 20
-Name : <Your Subcategory name (e.g. “NBA”)>
-Country : <Empty string for multinational subcategories or an ISO ALPHA-2 country code (e.g. “US” for United States)>
-Hidden : <Enter false>
- 
-Click “transact”. A Metamask dialog will open asking to confirm the transaction. Press “Confirm” and wait for the transaction to be mined.
+## Publish a Subcategory on your Oracle smart contract
+1. Expand the “setSubcategory” section on the “Deployed Contracts” area and fill in the required values:
 
-12.	Monitor the transaction’s status by clicking the link under the “transact to Oracle.setSubcategory pending ...” at the logs area of Remix
-13.	Once your transaction is mined, check your newly created Subcategory by expanding the “subcategories” section. Enter the subcategory Id to get the Subcategory info from the blockchain
- 
+    ```
+    Id: <A unique Id for your Subcategory. Use zero for an autoincrement automatic value>
+    categoryId: <One of the currently supported values below: 
+      "1" for Football (Soccer)
+      "2" for Basketball
+      "3" for Baseball
+      "4" for American Football
+      "5" for Boxing
+      "6" for Horse Racing
+      "7" for Cycling
+      "8" for Tennis
+      "9" for E-sports
+      "10" for Golf
+      "11" for Rugby
+      "12" for Motor Racing
+      "13" for Cricket
+      "14" for UFC/MMA
+      "15" for Handball
+      "16" for Snooker
+      "17" for Darts
+      "18" for Winter Sports
+      "19" for Ice Hockey
+      "20" for Volleyball>
+    Name: <Your Subcategory name (e.g. “NBA”)>
+    Country: <Empty string for multinational subcategories or an ISO ALPHA-2 country code (e.g. “US” for United States)>
+    Hidden: <Enter "false">
+    ```
 
-Publish an Event on your Oracle smart contract
+    ![set subcategory](/images/set_subcategory.png)
+
+    Click “transact”. A Metamask dialog will open asking to confirm the transaction. Press “Confirm” and wait for the transaction to be mined.
+
+12. Monitor the transaction’s status by clicking the link under the “transact to Oracle.setSubcategory pending ...” at the logs area of Remix
+
+13. Once your transaction is mined, check your newly created Subcategory by expanding the “subcategories” section. Enter the subcategory Id to get the Subcategory info from the blockchain
+
+    ![subcategory info](/images/subcategory_info.png)
+
+## Publish an Event on your Oracle smart contract
 1.	Expand the addUpcomingEvent section and fill in the required values:
 Id :  <A unique Id for your Event. Use zero for an autoincrement automatic value.>
 title: <Event title (e.g. “Denver Nuggets - Portland Trail Blazers”)>
