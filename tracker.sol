@@ -1,6 +1,6 @@
 /*
  * Kryptium Tracker Smart Contract v.1.0.0
- * Copyright © 2018 Kryptium Team <info@kryptium.io>
+ * Copyright © 2019 Kryptium Team <info@kryptium.io>
  * Author: Giannis Zarifis <jzarifis@kryptium.io>
  * 
  * A registry of betting houses based on the Ethereum blockchain. It keeps track
@@ -13,7 +13,7 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT 
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the Terms and Conditions for more details.
+ * FOR A PARTICULAR PURPOSE. See the Terms of Use for more details.
  */
 
 pragma solidity ^0.5.0;

@@ -129,10 +129,54 @@
             "payable": false,
             "stateMutability": "view",
             "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [
+                {
+                    "name": "eventId",
+                    "type": "uint256"
+                },
+                {
+                    "name": "outputId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "eventOutputs",
+            "outputs": [
+                {
+                    "name": "isSet",
+                    "type": "bool"
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "possibleResultsCount",
+                    "type": "uint256"
+                },
+                {
+                    "name": "eventOutputType",
+                    "type": "uint256"
+                },
+                {
+                    "name": "announcement",
+                    "type": "string"
+                },
+                {
+                    "name": "decimals",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
         }
     ],
     "bytecode": "",
     "functionHashes": {
+        "eventOutputs(uint256,uint256)": "fbdc4b73",
         "getEventForHousePlaceBet(uint256)": "7599609d",
         "getEventOutcome(uint256,uint256)": "0937fb36",
         "getEventOutcomeIsSet(uint256,uint256)": "c49c3635",
