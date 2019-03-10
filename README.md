@@ -183,7 +183,7 @@ However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smar
     ownerPercentage: <Array of uint ‰ of fees that will be distributed to each owner in the ownerAddress array>
     housePercentage: <‰ of your House commission>
     oraclePercentage: <‰ of fees to be assigned to the Oracle smart contract owner>
-    Version: <Enter "102">
+    Version: <Enter "103">
     ```
 
     ![deploy house](/images/deploy_house.png)
