@@ -2,7 +2,7 @@
 All notable changes to Kryptium smart contracts will be documented in this file.
 
 
-## House Smart Contract v.1.1.0 - 2019-03-??
+## House Smart Contract v.1.1.0 - 2019-03-10
 
 ### Added
 - Support for head-to-head bets
