@@ -54,7 +54,7 @@ contract SafeMath {
 
 contract Owned {
 
-    address public owner;
+    address payable public owner;
 
     constructor() public {
         owner = msg.sender;
@@ -65,7 +65,7 @@ contract Owned {
         _;
     }
 
-    function transferOwnership(address newOwner) onlyOwner public {
+    function transferOwnership(address payable newOwner) onlyOwner public {
         require(newOwner != address(0x0));
         owner = newOwner;
     }

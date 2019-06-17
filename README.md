@@ -19,7 +19,7 @@ However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smar
 ## Oracle deployment
 1. Open a browser which has the Metamask plugin installed and launch Metamask. Unlock your account and select your desired destination network (e.g. “Ropsten Testnet Network”). The unlocked account should have some Ether in the selected blockchain network.
 
-2. Navigate to  https://remix.ethereum.org/#optimize=true&version=soljson-v0.5.2+commit.1df8f40c.js
+2. Navigate to  https://remix.ethereum.org/#optimize=true&version=soljson-v0.5.8+commit.23d335f2.js
 
 3. Click the icon “Add local file to the browser storage explorer”
 
@@ -48,7 +48,7 @@ However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smar
     oracleCreatorName: <Oracle creator name (You)>
     closeBeforeStartTime: <Closing time for bets on upcoming events, in minutes before the start of the event>
     closeEventOutcomeTime: <Freeze time for finalisation of event outcomes, in minutes after the end of the event>
-    version: <Enter the value 102>
+    version: <Enter the value 104>
     ```
 
     ![deploy section](/images/deploy_section.png) 
@@ -90,7 +90,13 @@ However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smar
       "17" for Darts
       "18" for Winter Sports
       "19" for Ice Hockey
-      "20" for Volleyball>
+      "20" for Volleyball
+      "101" for Cryptocurrencies
+      "102" for Stock Markets
+      "201" for TV Series
+      "202" for Cinema
+      "301" for Elections
+      "1001" for Miscellaneous>
     Name: <Your Subcategory name (e.g. “NBA”)>
     Country: <Empty string for multinational subcategories or an ISO ALPHA-2 country code (e.g. “US” for United States)>
     Hidden: <Enter "false">
@@ -183,7 +189,7 @@ However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smar
     ownerPercentage: <Array of uint ‰ of fees that will be distributed to each owner in the ownerAddress array>
     housePercentage: <‰ of your House commission>
     oraclePercentage: <‰ of fees to be assigned to the Oracle smart contract owner>
-    Version: <Enter "103">
+    Version: <Enter "104">
     ```
 
     ![deploy house](/images/deploy_house.png)
