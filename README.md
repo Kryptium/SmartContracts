@@ -19,7 +19,7 @@ However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smar
 ## Oracle deployment
 1. Open a browser which has the Metamask plugin installed and launch Metamask. Unlock your account and select your desired destination network (e.g. “Ropsten Testnet Network”). The unlocked account should have some Ether in the selected blockchain network.
 
-2. Navigate to  https://remix.ethereum.org/#optimize=true&version=soljson-v0.5.8+commit.23d335f2.js
+2. Navigate to  https://remix.ethereum.org/#optimize=true&version=soljson-v0.5.8+commit.23d335f2.js (For Ellaism https://remix.ethereum.org/#optimize=true&version=soljson-v0.5.2+commit.1df8f40c.js)
 
 3. Click the icon “Add local file to the browser storage explorer”
 
