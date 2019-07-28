@@ -11,10 +11,10 @@ Kryptium “back-end” functionality is implemented in the form of smart contra
 ## Deployment methods
 
 ### App-based / automated (coming soon)
-The next major version of the Kryptium betting app (v.1.1.x) will support transparent deployment and management of Kryptium betting houses (house smart contracts) and data services (oracle smart contracts). This will allow anybody to use the platform to its fullest potential, even if they don’t have deep technical knowledge of blockchain internals.
+Version 2.1 of the Kryptium betting app will support transparent deployment and management of Kryptium betting houses (house smart contracts) and data services (oracle smart contracts). This will allow anybody to use the platform to its fullest potential, even if they don’t have deep technical knowledge of blockchain internals.
 
 ### Manual
-However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smart contracts is by using Solidity development tools. The next sections provide instructions for the manual deployment and use of oracle and house smart contracts which are essential for setting up your own Kryptium-powered betting house. The instructions assume that the reader has basic technical knowledge of the Ethereum blockchain network and basic familiarity with the necessary tools.
+However, until Kryptium app v.2.1 is out, the only way to deploy Kryptium smart contracts is by using Solidity development tools. The next sections provide instructions for the manual deployment and use of oracle and house smart contracts which are essential for setting up your own Kryptium-powered betting house. The instructions assume that the reader has basic technical knowledge of the Ethereum blockchain network and basic familiarity with the necessary tools.
 
 ## Oracle deployment
 1. Open a browser which has the Metamask plugin installed and launch Metamask. Unlock your account and select your desired destination network (e.g. “Ropsten Testnet Network”). The unlocked account should have some Ether in the selected blockchain network.
