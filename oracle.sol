@@ -1,5 +1,5 @@
 /*
- * Kryptium Oracle Smart Contract v.1.0.0
+ * Kryptium Oracle Smart Contract v.2.0.0
  * Copyright © 2019 Kryptium Team <info@kryptium.io>
  * Author: Giannis Zarifis <jzarifis@kryptium.io>
  * 
@@ -81,19 +81,16 @@ contract Oracle is SafeMath, Owned {
     uint private eventNextId;
     uint private subcategoryNextId;
 
+
+
     struct Event { 
-        uint id;
         string  title;
-        uint  startDateTime;   
-        uint  endDateTime;
-        uint  subcategoryId;   
-        uint  categoryId;   
-        uint closeDateTime;     
-        uint freezeDateTime;
         bool isCancelled;
-        string announcement;
-        uint totalAvailableOutputs;
-    } 
+        uint256 dataCombined;
+        bytes32 announcement;
+    }
+
+
 
     struct EventOutcome {
         uint256 outcome1;
@@ -107,20 +104,20 @@ contract Oracle is SafeMath, Owned {
 
 
     struct EventOutput {
+        uint256 dataCombined;
         bool isSet;
-        string title;
-        uint possibleResultsCount;
+        bytes32 title;
+        //uint possibleResultsCount;
+        //uint outputDateTime;
         EventOutputType  eventOutputType;
-        string announcement; 
-        uint decimals;
+        bytes32 announcement; 
+        //uint decimals;
     }
 
 
     struct OracleData { 
         string  name;
         string  creatorName;
-        uint  closeBeforeStartTime;   
-        uint  closeEventOutcomeTime;
         uint version;      
     } 
 
@@ -175,11 +172,9 @@ contract Oracle is SafeMath, Owned {
      * Constructor function
      * Initializes Oracle contract
      */
-    constructor(string memory oracleName, string memory oracleCreatorName, uint closeBeforeStartTime, uint closeEventOutcomeTime, uint version) public {
+    constructor(string memory oracleName, string memory oracleCreatorName, uint version) public {
         oracleData.name = oracleName;
         oracleData.creatorName = oracleCreatorName;
-        oracleData.closeBeforeStartTime = closeBeforeStartTime;
-        oracleData.closeEventOutcomeTime = closeEventOutcomeTime;
         oracleData.version = version;
         emit OracleCreated();
     }
@@ -195,16 +190,6 @@ contract Oracle is SafeMath, Owned {
         emit OraclePropertiesUpdated();
     }    
 
-     /**
-     * Update Oracle Time Constants function
-     *
-     * Updates Oracle Time Constants
-     */
-    function setTimeConstants(uint closeBeforeStartTime, uint closeEventOutcomeTime) onlyOwner public {
-        oracleData.closeBeforeStartTime = closeBeforeStartTime;
-        oracleData.closeEventOutcomeTime = closeEventOutcomeTime;
-        emit OraclePropertiesUpdated();
-    }      
 
 
     /**
@@ -230,91 +215,103 @@ contract Oracle is SafeMath, Owned {
         subcategories[id].hidden = true;
         emit OracleSubcategoryUpdated(id);
     }   
+  
 
+    function setEventInternal(uint id, uint  startDateTime, uint  endDateTime, uint  subcategoryId, uint  categoryId, uint totalAvailableOutputs, uint timeStamp) private {
+        events[id].dataCombined = (startDateTime & 0xFFFFFFFF) | ((endDateTime & 0xFFFFFFFF) << 32) | ((subcategoryId & 0xFFFFFFFF) << 64) | ((categoryId & 0xFFFFFFFF) << 96) | ((totalAvailableOutputs & 0xFFFFFFFF) << 128) | ((timeStamp & 0xFFFFFFFF) << 160);
+    }
+
+    function getEventInternal(uint id) public view returns (uint  startDateTime, uint  endDateTime, uint  subcategoryId, uint  categoryId, uint totalAvailableOutputs, uint timeStamp) {
+        uint256 dataCombined = events[id].dataCombined;
+        return (uint32(dataCombined), uint32(dataCombined >> 32), uint32(dataCombined >> 64), uint32(dataCombined >> 96), uint32(dataCombined >> 128), uint32(dataCombined >> 160));
+    }
+
+    function setEventOutputInternal(uint eventId, uint eventOutputId, uint possibleResultsCount, uint outputDateTime, uint decimals) private {
+        eventOutputs[eventId][eventOutputId].dataCombined = (possibleResultsCount & 0xFFFFFFFF) | ((outputDateTime & 0xFFFFFFFF) << 32) | ((decimals & 0xFFFFFFFF) << 64);
+    }
+
+    function getEventOutputInternal(uint eventId, uint eventOutputId) public view returns (uint possibleResultsCount, uint outputDateTime, uint decimals) {
+        uint256 dataCombined = eventOutputs[eventId][eventOutputId].dataCombined;
+        return (uint32(dataCombined), uint32(dataCombined >> 32), uint32(dataCombined >> 64));
+    }
+
+    function setEventOutputDateTime(uint eventId, uint eventOutputId, uint outputDateTime) private {
+        (uint possibleResultsCount, , uint decimals) = getEventOutputInternal(eventId, eventOutputId);
+        eventOutputs[eventId][eventOutputId].dataCombined = (possibleResultsCount & 0xFFFFFFFF) | ((outputDateTime & 0xFFFFFFFF) << 32) | ((decimals & 0xFFFFFFFF) << 64);
+    }
+
+    function getEventOutputDateTime(uint eventId, uint eventOutputId) private view returns (uint outputDateTime) {
+        return (uint32(eventOutputs[eventId][eventOutputId].dataCombined >> 32));
+    }
 
     /**
      * Adds an Upcoming Event
      */
-    function addUpcomingEvent(uint id, string memory title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId, string memory outputTitle, EventOutputType eventOutputType, bytes32[] memory _possibleResults,uint decimals) onlyOwner public {        
+    function addUpcomingEvent(uint id, string memory title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId, bytes32 outputTitle, EventOutputType eventOutputType, bytes32[] memory _possibleResults, uint decimals, bool isCancelled) onlyOwner public {        
         if (id==0) {
             eventNextId += 1;
             id = eventNextId;
-        }
-        
-        uint closeDateTime = startDateTime - oracleData.closeBeforeStartTime * 1 minutes;
-        uint freezeDateTime = endDateTime + oracleData.closeEventOutcomeTime * 1 minutes;
-        require(closeDateTime >= now,"Close time should be greater than now");
-        events[id].id = id;
+        }      
+        require(startDateTime > now,"Start time should be greater than now");
         events[id].title = title;
-        events[id].startDateTime = startDateTime;
-        events[id].endDateTime = endDateTime;
-        events[id].subcategoryId = subcategoryId;
-        events[id].categoryId = categoryId;
-        events[id].closeDateTime = closeDateTime;
-        events[id].freezeDateTime = freezeDateTime;
+        events[id].isCancelled = isCancelled;
         eventOutputs[id][0].title = outputTitle;
-        eventOutputs[id][0].possibleResultsCount = _possibleResults.length;
         eventOutputs[id][0].eventOutputType = eventOutputType;
-        eventOutputs[id][0].decimals = decimals;
+        setEventOutputInternal(id,0,_possibleResults.length, endDateTime, decimals);
         for (uint j = 0; j<_possibleResults.length; j++) {
             eventOutputPossibleResults[id][0][j] = _possibleResults[j];            
-        }
-        if (events[id].totalAvailableOutputs < 1) {
-            events[id].totalAvailableOutputs = 1;
-        }      
-        emit UpcomingEventUpdated(id,closeDateTime);
+        }   
+        setEventInternal(id, startDateTime, endDateTime, subcategoryId, categoryId, 1, now); 
+        emit UpcomingEventUpdated(id,startDateTime);
     }  
 
-    /**
-     * Adds a new output to existing an Upcoming Event
-     */
-    function addUpcomingEventOutput(uint id, string memory outputTitle, EventOutputType eventOutputType, bytes32[] memory _possibleResults,uint decimals) onlyOwner public {
-        require(events[id].closeDateTime >= now,"Close time should be greater than now");
-        eventOutputs[id][events[id].totalAvailableOutputs].title = outputTitle;
-        eventOutputs[id][events[id].totalAvailableOutputs].possibleResultsCount = _possibleResults.length;
-        eventOutputs[id][events[id].totalAvailableOutputs].eventOutputType = eventOutputType;
-        eventOutputs[id][events[id].totalAvailableOutputs].decimals = decimals;
-        for (uint j = 0; j<_possibleResults.length; j++) {
-            eventOutputPossibleResults[id][events[id].totalAvailableOutputs][j] = _possibleResults[j];
-        }  
-        events[id].totalAvailableOutputs += 1;             
-        emit UpcomingEventUpdated(id,events[id].closeDateTime);
-    }
+    // /**
+    //  * Adds a new output to existing an Upcoming Event
+    //  */
+    // function addUpcomingEventOutput(uint id, string memory outputTitle, EventOutputType eventOutputType, bytes32[] memory _possibleResults,uint decimals) onlyOwner public {
+    //     require(events[id].closeDateTime >= now,"Close time should be greater than now");
+    //     eventOutputs[id][events[id].totalAvailableOutputs].title = outputTitle;
+    //     eventOutputs[id][events[id].totalAvailableOutputs].possibleResultsCount = _possibleResults.length;
+    //     eventOutputs[id][events[id].totalAvailableOutputs].eventOutputType = eventOutputType;
+    //     eventOutputs[id][events[id].totalAvailableOutputs].decimals = decimals;
+    //     for (uint j = 0; j<_possibleResults.length; j++) {
+    //         eventOutputPossibleResults[id][events[id].totalAvailableOutputs][j] = _possibleResults[j];
+    //     }  
+    //     events[id].totalAvailableOutputs += 1;             
+    //     emit UpcomingEventUpdated(id,events[id].startDateTime);
+    // }
 
     /**
      * Updates an Upcoming Event
      */
     function updateUpcomingEvent(uint id, string memory title, uint startDateTime, uint endDateTime, uint subcategoryId, uint categoryId) onlyOwner public {
-        uint closeDateTime = startDateTime - oracleData.closeBeforeStartTime * 1 minutes;
-        uint freezeDateTime = endDateTime + oracleData.closeEventOutcomeTime * 1 minutes;
-        events[id].title = title;
-        events[id].startDateTime = startDateTime;
-        events[id].endDateTime = endDateTime;
-        events[id].subcategoryId = subcategoryId;
-        events[id].categoryId = categoryId;
-        events[id].closeDateTime = closeDateTime;
-        events[id].freezeDateTime = freezeDateTime;
-        if (closeDateTime < now) {
+        if (startDateTime < now) {
             events[id].isCancelled = true;
-        }  
-        emit UpcomingEventUpdated(id,closeDateTime); 
+        } else {       
+            events[id].title = title;
+            setEventInternal(id, startDateTime, endDateTime, subcategoryId, categoryId, 1, now); 
+        }
+
+         
+        emit UpcomingEventUpdated(id,startDateTime); 
     }     
 
     /**
      * Cancels an Upcoming Event
      */
     function cancelUpcomingEvent(uint id) onlyOwner public {
-        require(events[id].freezeDateTime >= now,"Freeze time should be greater than now");
+        (uint currentStartDateTime,,,,,) = getEventInternal(id);
         events[id].isCancelled = true;
-        emit UpcomingEventUpdated(id,events[id].closeDateTime); 
+        emit UpcomingEventUpdated(id,currentStartDateTime); 
     }  
 
 
     /**
      * Set the numeric type outcome of Event output
      */
-    function setEventOutcomeNumeric(uint eventId, uint outputId, string memory announcement, bool setEventAnnouncement, uint256 outcome1, uint256 outcome2,uint256 outcome3,uint256 outcome4, uint256 outcome5, uint256 outcome6) onlyOwner public {
-        require(events[eventId].freezeDateTime > now,"Freeze time should be greater than now");
+    function setEventOutcomeNumeric(uint eventId, uint outputId, bytes32 announcement, bool setEventAnnouncement, uint256 outcome1, uint256 outcome2,uint256 outcome3,uint256 outcome4, uint256 outcome5, uint256 outcome6) onlyOwner public {
+        (uint currentStartDateTime,,,,,) = getEventInternal(eventId);
+        require(currentStartDateTime < now,"Start time should be lower than now");
         require(!events[eventId].isCancelled,"Cancelled Event");
         require(eventOutputs[eventId][outputId].eventOutputType == EventOutputType.numeric,"Required numeric Event type");
         eventNumericOutcomes[eventId][outputId].outcome1 = outcome1;
@@ -325,41 +322,33 @@ contract Oracle is SafeMath, Owned {
         eventNumericOutcomes[eventId][outputId].outcome6 = outcome6;
         eventOutputs[eventId][outputId].isSet = true;
         eventOutputs[eventId][outputId].announcement = announcement;
+        setEventOutputDateTime(eventId, outputId, now);
         if (setEventAnnouncement) {
             events[eventId].announcement = announcement;
         }     
-        emit UpcomingEventUpdated(eventId,events[eventId].closeDateTime); 
+        emit UpcomingEventUpdated(eventId, currentStartDateTime); 
     }  
 
      /**
      * Set the outcome of Event output
      */
-    function setEventOutcome(uint eventId, uint outputId, string memory announcement, bool setEventAnnouncement, uint _eventOutcome ) onlyOwner public {
-        require(events[eventId].freezeDateTime > now,"Freeze time should be greater than now");
+    function setEventOutcome(uint eventId, uint outputId, bytes32 announcement, bool setEventAnnouncement, uint _eventOutcome ) onlyOwner public {
+        (uint currentStartDateTime,,,,,) = getEventInternal(eventId);
+        require(currentStartDateTime < now,"Start time should be lower than now");
         require(!events[eventId].isCancelled,"Cancelled Event");
         require(eventOutputs[eventId][outputId].eventOutputType == EventOutputType.stringarray,"Required array of options Event type");
         eventOutputs[eventId][outputId].isSet = true;
         eventOutcome[eventId][outputId] = _eventOutcome;
+        setEventOutputDateTime(eventId, outputId, now);
         eventOutputs[eventId][outputId].announcement = announcement;
         if (setEventAnnouncement) {
             events[eventId].announcement = announcement;
         } 
-        emit UpcomingEventUpdated(eventId,events[eventId].closeDateTime); 
+        emit UpcomingEventUpdated(eventId, currentStartDateTime); 
     } 
 
 
-    /**
-     * set a new freeze datetime of an Event
-     */
-    function freezeEventOutcome(uint id, uint newFreezeDateTime) onlyOwner public {
-        require(!events[id].isCancelled,"Cancelled Event");
-        if (newFreezeDateTime > now) {
-            events[id].freezeDateTime = newFreezeDateTime;
-        } else {
-            events[id].freezeDateTime = now;
-        }
-        emit UpcomingEventUpdated(id,events[id].closeDateTime);
-    } 
+
 
     /**
      * Get event outcome numeric
@@ -385,11 +374,27 @@ contract Oracle is SafeMath, Owned {
     }
 
 
+
     /**
-     * Get event Info for Houses
+     * Get Event output possible results count
+    */
+    function getEventOutputPossibleResultsCount(uint id, uint outputId) public view returns(uint possibleResultsCount) {
+        return (uint32(eventOutputs[id][outputId].dataCombined));
+    }
+
+    /**
+     * Get Oracle version
+    */
+    function getOracleVersion() public view returns(uint version) {
+        return oracleData.version;
+    }
+
+    /**
+     * Get event start end info
      */
-    function getEventForHousePlaceBet(uint id) public view returns(uint closeDateTime, uint freezeDateTime, bool isCancelled) {
-        return (events[id].closeDateTime,events[id].freezeDateTime, events[id].isCancelled);
+    function getEventDataForHouse(uint id, uint outputId) public view returns(uint startDateTime, uint outputDateTime, bool isCancelled, uint timeStamp) {
+        (uint currentStartDateTime,,,,,uint currentTimeStamp) = getEventInternal(id);
+        return (currentStartDateTime, getEventOutputDateTime(id, outputId), events[id].isCancelled, currentTimeStamp);
     }
 
 

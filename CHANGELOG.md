@@ -2,6 +2,11 @@
 All notable changes to Kryptium smart contracts will be documented in this file.
 
 
+## House Smart Contract v.3.0.0 - 2019-07-25
+
+### Changed
+- Optimised data storage structures to decrease required gas for all betting transactions
+
 ## House Smart Contract v.2.0.0 - 2019-06-17
 
 ### Changed
@@ -17,6 +22,11 @@ All notable changes to Kryptium smart contracts will be documented in this file.
 
 ### Added
 - First release with support for pool bets!
+
+## Oracle Smart Contract v.2.0.0 - 2019-07-25
+
+### Changed
+- Optimised data storage structures to decrease required gas for all betting transactions
 
 ## Oracle Smart Contract v.1.0.0 - 2019-01-19
 

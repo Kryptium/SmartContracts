@@ -46,9 +46,7 @@ However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smar
     ```
     oracleName: <Your Oracle name>
     oracleCreatorName: <Oracle creator name (You)>
-    closeBeforeStartTime: <Closing time for bets on upcoming events, in minutes before the start of the event>
-    closeEventOutcomeTime: <Freeze time for finalisation of event outcomes, in minutes after the end of the event>
-    version: <Enter the value 104>
+    version: <Enter the value 105>
     ```
 
     ![deploy section](/images/deploy_section.png) 
@@ -118,11 +116,13 @@ However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smar
     ```
     Id: <A unique Id for your Event. Use zero for an autoincrement automatic value.>
     title: <Event title (e.g. “Denver Nuggets - Portland Trail Blazers”)>
-    startDateTime: <The event start time in epoch format (e.g. 1547427600)>
-    endDateTime: <The event end time in epoch format (e.g. 1547436600)>
+    startDateTime: <The event start time in epoch format (e.g. 1639965600)>
+    endDateTime: <The event end time in epoch format (e.g. 1639976400)>
     subcategoryId: <The Subcategory Id of the previously created subcategory>
     categoryId: <"2" for Basketball, see previous list of category ids>
-    outputTitle: <An output/outcome label, e.g. “Winner”>
+    outputTitle: <An output/outcome label abi encoded bytes32,
+      To convert a string to bytes32 open the development tools in your browser, 
+      go to the console and type web3.fromAscii("{string to be converted}"). e.g. “Winner” should be "0x57696e6e6572">
     eventOutputType: <Enter "0">
     _possibleResults: <abi encoded array of bytes32. 
       To convert a string to bytes32 open the development tools in your browser, 
@@ -130,7 +130,8 @@ However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smar
       For the NBA game “Denver Nuggets - Portland Trail Blazers” the correct input 
       of _possibleResults is: 
       ["0x44656e766572204e756767657473","0x506f72746c616e6420547261696c20426c617a657273"]>
-    decimals: 0
+    decimals: 0,
+    cancelled: false
     ```
     
     ![add upcoming event](/images/add_upcoming_event.png)
@@ -149,7 +150,9 @@ However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smar
     ```
     eventId: <The unique Event Id (e.g. 1 for the above deployed Event)>
     outputId: 0
-    announcement: <The final score of the Event (e.g. “102-118”)>
+    announcement: <The final score of the Event (e.g. “102-118”) abi encoded bytes32,
+      To convert a string to bytes32 open the development tools in your browser, 
+      go to the console and type web3.fromAscii("{string to be converted}"). e.g. 102-118 should be "0x3130322d313138">
     setEventAnnouncement: true
     _eventOutcome: <The index of the result, from the array of event’s possible results, 
       that won the Event. If the score of the "Denver Nuggets - Portland Trail Blazers" 
@@ -183,13 +186,12 @@ However, until Kryptium app v.1.1.x is out, the only way to deploy Kryptium smar
     managed: true
     houseName: <Your House name>
     houseCreatorName : <House creator name(You)>
-    houseCountryISO: <Leave it empty>
     oracleAddress: <An Oracle address. Use the address of your previously deployed Oracle smart contract>
-    ownerAddress: <Array of addresses that collect the generated fees by the House.>
-    ownerPercentage: <Array of uint ‰ of fees that will be distributed to each owner in the ownerAddress array>
     housePercentage: <‰ of your House commission>
     oraclePercentage: <‰ of fees to be assigned to the Oracle smart contract owner>
-    Version: <Enter "104">
+    closeBeforeStartTime: <Closing time for bets on upcoming events, in minutes before the start of the event>
+    closeEventOutcomeTime: <Freeze time for finalisation of event outcomes, in minutes after the end of the event>
+    Version: <Enter "105">
     ```
 
     ![deploy house](/images/deploy_house.png)

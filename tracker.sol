@@ -109,7 +109,7 @@ contract Tracker is SafeMath, Owned {
 
     TrackerData public trackerData;
 
-    // This creates an array with all balances
+    // This creates an array with all Houses
     mapping (address => House) public houses;
 
     // Player has upvoted a House
